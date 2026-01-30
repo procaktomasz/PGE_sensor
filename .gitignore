@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.build/
+.eggs/
+.dist/
+.env
+.venv/
+ENV/
+venv/
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Home Assistant / custom components
+*.log
+home-assistant_v2.db

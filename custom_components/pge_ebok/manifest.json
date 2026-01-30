@@ -1,0 +1,10 @@
+{
+  "domain": "pge_ebok",
+  "name": "PGE eBOK",
+  "version": "0.1.0",
+  "documentation": "https://example.com/pge_ebok",
+  "codeowners": ["@your-github-handle"],
+  "requirements": ["beautifulsoup4", "requests"],
+  "config_flow": true,
+  "iot_class": "cloud_polling"
+}
