@@ -1,11 +1,11 @@
-# PGE eBOK Sensor
+# PGE Sensor
 
 ## 🇵🇱 Wersja polska
 
 ### Opis
-Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobierania informacji o zaległościach z portalu PGE eBOK. Dane są scrapowane bezpośrednio z panelu klienta i prezentowane jako:
+Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobierania informacji o zaległościach z portalu PGE Sensor. Dane są scrapowane bezpośrednio z panelu klienta i prezentowane jako:
 - komunikat w konsoli (`pge_scraper.py`) dla szybkiej kontroli salda,
-- sensory w Home Assistant (stan konta + termin płatności) poprzez komponent `custom_components/pge_ebok`.
+- sensory w Home Assistant (stan konta + termin płatności) poprzez komponent `custom_components/pge_sensor`.
 
 ### Wymagania
 - Python 3.10+ z zainstalowanymi bibliotekami `requests` oraz `beautifulsoup4`.
@@ -13,9 +13,9 @@ Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobiera
 - (Opcjonalnie) instancja Home Assistant z możliwością instalacji niestandardowych komponentów.
 
 ### Integracja z Home Assistant
-1. Skompletuj katalog `custom_components/pge_ebok` w folderze `config/custom_components` swojej instalacji HA.
+1. Skompletuj katalog `custom_components/pge_sensor` w folderze `config/custom_components` swojej instalacji HA.
 2. Przeładuj HA lub wykonaj `Odśwież integracje`.
-3. Dodaj integrację „PGE eBOK” z poziomu interfejsu (Konfiguracja → Urządzenia i Usługi → Dodaj integrację) i podaj dane logowania.
+3. Dodaj integrację „PGE Sensor” z poziomu interfejsu (Konfiguracja → Urządzenia i Usługi → Dodaj integrację) i podaj dane logowania.
 4. Koordynator aktualizuje dane co 12 godzin (`SCAN_INTERVAL`). Sensory:
    - `PGE Balance` (`sensor.pge_balance`) – saldo w PLN.
    - `PGE Payment Due Date` (`sensor.pge_payment_due_date`) – termin płatności.
@@ -27,7 +27,7 @@ Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobiera
   ```yaml
   logger:
     logs:
-      custom_components.pge_ebok: debug
+      custom_components.pge_sensor: debug
   ```
 
 ### Kontrybucje i licencja
@@ -43,7 +43,7 @@ To projekt prywatny, który nie jest powiązany, sponsorowany ani wspierany prze
 ## 🇬🇧 English section
 
 ### Overview
-This repository ships both a lightweight CLI scraper (`pge_scraper.py`) and a Home Assistant custom integration located in `custom_components/pge_ebok`. The code signs in to the PGE eBOK customer portal, parses outstanding invoices and exposes:
+This repository ships both a lightweight CLI scraper (`pge_scraper.py`) and a Home Assistant custom integration located in `custom_components/pge_sensor`. The code signs in to the PGE Sensor customer portal, parses outstanding invoices and exposes:
 - console output for quick balance checks,
 - Home Assistant sensors with the outstanding amount and optional due date.
 
@@ -53,9 +53,9 @@ This repository ships both a lightweight CLI scraper (`pge_scraper.py`) and a Ho
 - (Optional) Home Assistant instance that allows custom components.
 
 ### Home Assistant integration
-1. Copy the `custom_components/pge_ebok` directory into `config/custom_components` inside your HA setup.
+1. Copy the `custom_components/pge_sensor` directory into `config/custom_components` inside your HA setup.
 2. Reload Home Assistant (or use the “Reload integrations” UI action).
-3. Add the “PGE eBOK” integration via the UI and supply your login/password.
+3. Add the “PGE Sensor” integration via the UI and supply your login/password.
 4. The `DataUpdateCoordinator` refreshes the portal every 12 hours. Available entities:
    - `PGE Balance` (`sensor.pge_balance`) – outstanding amount in PLN.
    - `PGE Payment Due Date` (`sensor.pge_payment_due_date`) – next due date if present.
@@ -67,7 +67,7 @@ This repository ships both a lightweight CLI scraper (`pge_scraper.py`) and a Ho
   ```yaml
   logger:
     logs:
-      custom_components.pge_ebok: debug
+      custom_components.pge_sensor: debug
   ```
 
 ### Contributing & license

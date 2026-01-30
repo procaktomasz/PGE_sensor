@@ -1,4 +1,4 @@
-"""Utility for retrieving outstanding payments from PGE eBOK."""
+"""Utility for retrieving outstanding payments from PGE Sensor."""
 from __future__ import annotations
 
 import argparse
@@ -31,7 +31,7 @@ class BalanceInfo:
 
 @dataclass
 class PgeScraper:
-    """Scrapes outstanding payment data from the PGE eBOK portal."""
+    """Scrapes outstanding payment data from the PGE Sensor portal."""
 
     username: str
     password: str
@@ -275,7 +275,7 @@ class PgeScraper:
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Fetch outstanding balance from PGE eBOK")
+    parser = argparse.ArgumentParser(description="Fetch outstanding balance from PGE Sensor")
     parser.add_argument("username", help="Login used on ekob portal")
     parser.add_argument("password", help="Password used on ekob portal")
     parser.add_argument(
