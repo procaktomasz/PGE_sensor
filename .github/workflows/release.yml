@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  publish:
+    name: Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract release notes from changelog
+        id: changelog
+        shell: bash
+        run: |
+          python <<'PY'
+          import os
+          import pathlib
+          import re
+
+          tag = os.environ["GITHUB_REF_NAME"]
+          version = tag[1:] if tag.startswith("v") else tag
+          changelog_text = pathlib.Path("CHANGELOG.md").read_text(encoding="utf-8")
+
+          pattern = re.compile(r"^## \[(?P<ver>[^\]]+)\][^\n]*\n(?P<body>(?:.+\n)+?)(?=^## |\Z)", re.MULTILINE)
+          notes = ""
+          for match in pattern.finditer(changelog_text):
+            if match.group("ver").strip() == version:
+              notes = match.group("body").strip()
+              break
+
+          if not notes:
+            notes = f"Release {version}"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+            fh.write("notes<<'EOF'\n")
+            fh.write(notes + "\n")
+            fh.write("EOF\n")
+          PY
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.notes }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
