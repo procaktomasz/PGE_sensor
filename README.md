@@ -12,6 +12,12 @@ Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobiera
 - Aktywne konto w serwisie https://ebok.gkpge.pl.
 - (Opcjonalnie) instancja Home Assistant z możliwością instalacji niestandardowych komponentów.
 
+### Instalacja przez HACS
+1. W Home Assistant otwórz HACS → Integracje i kliknij menu z trzema kropkami → `Custom repositories`.
+2. Dodaj `https://github.com/procaktomasz/PGE_sensor` jako repozytorium typu `Integration` i zatwierdź.
+3. Wróć do listy integracji HACS, wyszukaj „PGE Sensor” i zainstaluj komponent.
+4. Po restarcie HA dodaj integrację „PGE Sensor” z poziomu ustawień (`Konfiguracja → Urządzenia i Usługi`).
+
 ### Integracja z Home Assistant
 1. Skompletuj katalog `custom_components/pge_sensor` w folderze `config/custom_components` swojej instalacji HA.
 2. Przeładuj HA lub wykonaj `Odśwież integracje`.
@@ -51,6 +57,12 @@ This repository ships both a lightweight CLI scraper (`pge_scraper.py`) and a Ho
 - Python 3.10+ with `requests` and `beautifulsoup4` available.
 - Valid credentials for https://ebok.gkpge.pl.
 - (Optional) Home Assistant instance that allows custom components.
+
+### HACS installation
+1. In Home Assistant go to HACS → Integrations and open the ⁝ menu → `Custom repositories`.
+2. Add `https://github.com/procaktomasz/PGE_sensor` as a repository of type `Integration` and confirm.
+3. Search for “PGE Sensor” in the HACS integrations catalog and install it.
+4. Restart Home Assistant if prompted, then add the “PGE Sensor” integration via `Settings → Devices & Services`.
 
 ### Home Assistant integration
 1. Copy the `custom_components/pge_sensor` directory into `config/custom_components` inside your HA setup.
