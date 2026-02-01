@@ -10,10 +10,14 @@ jobs:
   publish:
     name: Publish Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Extract release notes from changelog
         id: changelog
@@ -23,25 +27,34 @@ jobs:
           import os
           import pathlib
           import re
+          import uuid
 
           tag = os.environ["GITHUB_REF_NAME"]
           version = tag[1:] if tag.startswith("v") else tag
-          changelog_text = pathlib.Path("CHANGELOG.md").read_text(encoding="utf-8")
+
+          try:
+              changelog_text = pathlib.Path("CHANGELOG.md").read_text(encoding="utf-8")
+          except FileNotFoundError:
+              changelog_text = ""
 
           pattern = re.compile(r"^## \[(?P<ver>[^\]]+)\][^\n]*\n(?P<body>(?:.+\n)+?)(?=^## |\Z)", re.MULTILINE)
           notes = ""
-          for match in pattern.finditer(changelog_text):
-            if match.group("ver").strip() == version:
-              notes = match.group("body").strip()
-              break
+          
+          if changelog_text:
+              for match in pattern.finditer(changelog_text):
+                  if match.group("ver").strip() == version:
+                      notes = match.group("body").strip()
+                      break
 
           if not notes:
-            notes = f"Release {version}"
+              notes = f"Release {version}"
 
+          delimiter = f"EOF-{uuid.uuid4()}"
+          
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
-            fh.write("notes<<'EOF'\n")
-            fh.write(notes + "\n")
-            fh.write("EOF\n")
+              fh.write(f"notes<<{delimiter}\n")
+              fh.write(notes)
+              fh.write(f"\n{delimiter}\n")
           PY
 
       - name: Create GitHub release
@@ -50,5 +63,6 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
           body: ${{ steps.changelog.outputs.notes }}
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
