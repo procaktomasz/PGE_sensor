@@ -63,7 +63,9 @@ class PgeBaseSensor(CoordinatorEntity[PgeEbokCoordinator], SensorEntity):
 
     @property
     def available(self) -> bool:
-        return super().available and self.coordinator.data is not None
+        if self._attr_available is False:
+            return False
+        return self.coordinator.data is not None
 
 
 class PgeBalanceSensor(PgeBaseSensor):

@@ -10,7 +10,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .api import BalanceInfo, PgeScraper, PgeScraperError
 from .const import DEFAULT_TIMEOUT
 
-SCAN_INTERVAL = timedelta(hours=12)
+SCAN_INTERVAL = timedelta(hours=8)
+RETRY_INTERVAL = timedelta(minutes=30)
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -29,8 +30,15 @@ class PgeEbokCoordinator(DataUpdateCoordinator[BalanceInfo]):
 
     async def _async_update_data(self) -> BalanceInfo:
         try:
-            return await self.hass.async_add_executor_job(self._api.get_balance_details)
+            data = await self.hass.async_add_executor_job(self._api.get_balance_details)
+            if self.update_interval != SCAN_INTERVAL:
+                # Restore the regular polling frequency after a successful fetch.
+                self.async_set_update_interval(SCAN_INTERVAL)
+            return data
         except PgeScraperError as err:
+            # Tighten the retry window after a failure so we do not wait the full interval.
+            if self.update_interval != RETRY_INTERVAL:
+                self.async_set_update_interval(RETRY_INTERVAL)
             raise UpdateFailed(str(err)) from err
 
     @property

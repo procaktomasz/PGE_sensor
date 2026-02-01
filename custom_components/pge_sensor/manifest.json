@@ -1,7 +1,7 @@
 {
   "domain": "pge_sensor",
   "name": "PGE Sensor",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "documentation": "https://github.com/procaktomasz/PGE_sensor",
   "codeowners": ["@your-github-handle"],
   "requirements": ["beautifulsoup4", "requests"],
