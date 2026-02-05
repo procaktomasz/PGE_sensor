@@ -4,7 +4,19 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
-- _No entries yet._
+- _In process._
+
+## [1.2.0] - 2026-02-05
+
+### Fixed
+
+- Eliminowano `PgeScraperError` dla kont z saldem 0 PLN poprzez rozpoznawanie komunikatów „brak zaległości” i zwracanie kontrolnej wartości `0.0`.
+- Parser finansów uwzględnia teraz dodatkowe frazy i wzorce kwot, co zwiększa odporność na zmiany frontendu PGE.
+
+### Changed
+
+- Koordynator przywraca/skraca interwały z jednego miejsca i obejmuje niespodziewane wyjątki, aby logi oraz retry zachowywały się przewidywalnie.
+- Dokumentacja opisuje aktualny 8-godzinny interwał odczytu oraz 30-minutowe próby po błędach.
 
 ## [1.1.0] - 2026-02-01
 

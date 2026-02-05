@@ -22,13 +22,13 @@ Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobiera
 1. Skompletuj katalog `custom_components/pge_sensor` w folderze `config/custom_components` swojej instalacji HA.
 2. Przeładuj HA lub wykonaj `Odśwież integracje`.
 3. Dodaj integrację „PGE Sensor” z poziomu interfejsu (Konfiguracja → Urządzenia i Usługi → Dodaj integrację) i podaj dane logowania.
-4. Koordynator aktualizuje dane co 12 godzin (`SCAN_INTERVAL`). Sensory:
+4. Koordynator aktualizuje dane co 8 godzin (`SCAN_INTERVAL`), a po błędach przechodzi na 30-minutowe próby. Sensory:
    - `PGE Balance` (`sensor.pge_balance`) – saldo w PLN.
    - `PGE Payment Due Date` (`sensor.pge_payment_due_date`) – termin płatności.
 
 ### Rozwiązywanie problemów
 - Jeśli portal wymaga dodatkowej autoryzacji (SMS, e-mail), zaloguj się ręcznie w przeglądarce i zaakceptuj żądanie.
-- Brak danych w sensorach zwykle oznacza, że na koncie nie ma zaległości lub format tabel na stronie uległ zmianie.
+- Brak danych w sensorach zwykle oznacza, że format tabel na stronie uległ zmianie; przy zerowym saldzie sensor `PGE Balance` prezentuje `0` PLN, a data płatności będzie niedostępna.
 - Aktywuj logowanie debug w Home Assistant dodając w `configuration.yaml`:
   ```yaml
   logger:
@@ -68,13 +68,13 @@ This repository ships both a lightweight CLI scraper (`pge_scraper.py`) and a Ho
 1. Copy the `custom_components/pge_sensor` directory into `config/custom_components` inside your HA setup.
 2. Reload Home Assistant (or use the “Reload integrations” UI action).
 3. Add the “PGE Sensor” integration via the UI and supply your login/password.
-4. The `DataUpdateCoordinator` refreshes the portal every 12 hours. Available entities:
+4. The `DataUpdateCoordinator` refreshes the portal every 8 hours and switches to 30-minute retries after failures. Available entities:
    - `PGE Balance` (`sensor.pge_balance`) – outstanding amount in PLN.
    - `PGE Payment Due Date` (`sensor.pge_payment_due_date`) – next due date if present.
 
 ### Troubleshooting
 - Solve any two-factor prompts directly in the official portal before running the scraper.
-- Empty sensors typically mean no unpaid invoices or a layout change on the eBOK website.
+- Empty sensors typically indicate that the eBOK layout changed; when your balance is zero the `PGE Balance` sensor reports `0` PLN and no due date is exposed.
 - Enable debug logging within Home Assistant by adding:
   ```yaml
   logger:
