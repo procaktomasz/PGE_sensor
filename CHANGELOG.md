@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file. The format 
 
 - _In process._
 
+## [1.2.1] - 2026-02-06
+
+### Fixed
+
+- PL: Odtworzono kompletną klasę `PgeEbokCoordinator`, dzięki czemu komponent ładuje się poprawnie w Home Assistant nawet po ręcznej instalacji.
+- EN: Restored the full `PgeEbokCoordinator` definition so the component imports correctly in Home Assistant, including manual deployments.
+
 ## [1.2.0] - 2026-02-05
 
 ### Fixed
