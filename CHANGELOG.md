@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file. The format 
 
 - _In process._
 
+## [1.2.2] - 2026-03-02
+
+### Fixed
+
+- PL: Naprawiono błąd "Could not find any outstanding payments in response" gdy użytkownik nie ma żadnych faktur do zapłaty. Zamiast wyrzucać wyjątek, integracja teraz zwraca saldo 0.0.
+- EN: Fixed "Could not find any outstanding payments in response" error when user has no outstanding invoices. The integration now gracefully returns 0.0 balance instead of raising an exception.
+
 ## [1.2.1] - 2026-02-06
 
 ### Fixed

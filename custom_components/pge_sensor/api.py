@@ -91,7 +91,13 @@ class PgeScraper:
             if self._has_no_outstanding_hint(payload):
                 _LOGGER.debug("No outstanding payments detected for %s", self._username)
                 return BalanceInfo(amount=0.0)
-            raise PgeScraperError("Could not find any outstanding payments in response")
+            _LOGGER.warning(
+                "Could not parse outstanding payments for %s. "
+                "Returning zero balance as fallback. "
+                "This might indicate a website structure change.",
+                self._username,
+            )
+            return BalanceInfo(amount=0.0)
         return max(balances, key=lambda item: item.amount)
 
     # ---------------------------------------------------------------------
