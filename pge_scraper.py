@@ -54,6 +54,20 @@ class PgeScraper:
     _AMOUNT_REGEX = re.compile(
         r"(?:\d{1,3}(?:[\s\xa0]\d{3})*(?:[\.,]\d{2})|\d+[\.,]\d{2})"
     )
+    _NO_OUTSTANDING_HINTS: tuple[str, ...] = (
+        "brak nale\u017cno\u015bci",
+        "brak zaleg\u0142o\u015bci",
+        "brak dokument\u00f3w do zap\u0142aty",
+        "brak faktur do zap\u0142aty",
+        "brak rachunk\u00f3w do zap\u0142aty",
+        "brak p\u0142atno\u015bci do realizacji",
+        "wszystkie p\u0142atno\u015bci zosta\u0142y uregulowane",
+        "nie masz \u017cadnych zaleg\u0142o\u015bci",
+        "brak danych",
+    )
+    _ZERO_BALANCE_REGEX = re.compile(
+        r"(saldo|do zap(?:\u0142|l)aty|kwota do zap(?:\u0142|l)aty)[^0-9]{0,80}(0[,\.]00)"
+    )
 
     def __post_init__(self) -> None:
         if not self.username or not self.password:
@@ -84,7 +98,15 @@ class PgeScraper:
         payload = self._fetch_finance_payload()
         balances = self._extract_balance_info(payload)
         if not balances:
-            raise PgeScraperError("Could not find any outstanding payments in response")
+            if self._has_no_outstanding_hint(payload):
+                _LOGGER.debug("No outstanding payments detected, returning zero balance.")
+                return BalanceInfo(amount=0.0)
+            _LOGGER.warning(
+                "Could not parse outstanding payments. "
+                "This might indicate a website structure change. "
+                "Assuming zero balance as a fallback."
+            )
+            return BalanceInfo(amount=0.0)
         return max(balances, key=lambda item: item.amount)
 
     def _login(self) -> None:
@@ -163,6 +185,15 @@ class PgeScraper:
         raise PgeScraperError(
             "Unable to retrieve finance data: " + "; ".join(errors)
         )
+
+    @classmethod
+    def _has_no_outstanding_hint(cls, raw_payload: str) -> bool:
+        simplified = raw_payload.lower()
+        if any(marker in simplified for marker in cls._NO_OUTSTANDING_HINTS):
+            return True
+        if "0,00" not in simplified and "0.00" not in simplified:
+            return False
+        return bool(cls._ZERO_BALANCE_REGEX.search(simplified))
 
     @classmethod
     def _extract_balance_info(cls, raw_payload: str) -> list[BalanceInfo]:

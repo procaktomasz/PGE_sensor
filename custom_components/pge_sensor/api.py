@@ -55,6 +55,7 @@ class PgeScraper:
         "brak p\u0142atno\u015bci do realizacji",
         "wszystkie p\u0142atno\u015bci zosta\u0142y uregulowane",
         "nie masz \u017cadnych zaleg\u0142o\u015bci",
+        "brak danych",
     )
     _ZERO_BALANCE_REGEX = re.compile(
         r"(saldo|do zap(?:\u0142|l)aty|kwota do zap(?:\u0142|l)aty)[^0-9]{0,80}(0[,\.]00)"
