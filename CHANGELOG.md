@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-05-11
+
+### Fixed
+- PL: Usprawniono parsowanie eBOK dla kont z zerowym saldem, dodając obsługę nowych wariantów komunikatów (np. "brak nierozliczonych", "nie masz żadnych rachunków").
+- EN: Improved eBOK parsing for zero-balance accounts by supporting new message variants.
+- PL: Dodano wykrywanie prac serwisowych (np. "przerwa techniczna"), zapobiegając błędnemu raportowaniu zerowego salda, gdy portal jest niedostępny.
+- EN: Added maintenance detection to prevent falsely reporting zero balance when the portal is down.
+- PL: Rozszerzono wyrażenia regularne do wyciągania kwoty salda o nowe słowa kluczowe ("należność", "bieżące" itd.).
+- EN: Expanded balance extraction regex with new keywords.
+
 ## [1.2.3] - 2026-04-28
 
 ### Fixed

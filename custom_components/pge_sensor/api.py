@@ -56,9 +56,22 @@ class PgeScraper:
         "wszystkie p\u0142atno\u015bci zosta\u0142y uregulowane",
         "nie masz \u017cadnych zaleg\u0142o\u015bci",
         "brak danych",
+        "brak nierozliczonych",
+        "nie masz \u017cadnych rachunk\u00f3w",
+        "nie wykazuje zad\u0142u\u017cenia",
+        "brak dokument\u00f3w",
+        "nie masz nic do zap\u0142aty",
+    )
+    _MAINTENANCE_HINTS = (
+        "przerwa techniczna",
+        "trwaj\u0105 prace serwisowe",
+        "chwilowo niedost\u0119pny",
+        "system niedost\u0119pny",
+        "aktualizacja systemu",
+        "prace konserwacyjne",
     )
     _ZERO_BALANCE_REGEX = re.compile(
-        r"(saldo|do zap(?:\u0142|l)aty|kwota do zap(?:\u0142|l)aty)[^0-9]{0,80}(0[,\.]00)"
+        r"(saldo|do zap(?:\u0142|l)aty|kwota do zap(?:\u0142|l)aty|zap(?:\u0142|l)at|nale(?:\u017c|z)no(?:\u015b|s)(?:c|\u0107)|zaleg(?:\u0142|l)o|suma|razem|bie(?:\u017c|z)(?:a|\u0105)ce)[^0-9]{0,80}(0[,\.]00)"
     )
 
     def __init__(self, username: str, password: str, *, timeout: int = 15) -> None:
@@ -89,9 +102,15 @@ class PgeScraper:
         payload = self._fetch_finance_payload()
         balances = self._extract_balance_info(payload)
         if not balances:
+            payload_lower = payload.lower()
+            if any(hint in payload_lower for hint in self._MAINTENANCE_HINTS):
+                raise PgeScraperError("Portal is undergoing maintenance")
+
             if self._has_no_outstanding_hint(payload):
                 _LOGGER.debug("No outstanding payments detected for %s", self._username)
                 return BalanceInfo(amount=0.0)
+
+            _LOGGER.debug("Failed to parse payload. Snippet: %s", payload[:1000])
             _LOGGER.warning(
                 "Could not parse outstanding payments for %s. "
                 "Returning zero balance as fallback. "
