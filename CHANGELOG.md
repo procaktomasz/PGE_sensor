@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.2.5] - 2026-05-12
+
+### Fixed
+- PL: Poprawiono błąd parsowania eBOK, przez który zerowe saldo zwracane w formacie "0 zł" (zamiast "0,00 zł") rzucało ostrzeżeniami w logach Home Assistanta.
+- EN: Fixed an eBOK parsing issue where zero balances formatted as "0 PLN" (instead of "0,00 PLN") triggered warnings in Home Assistant logs.
+
 ## [1.2.4] - 2026-05-11
 
 ### Fixed

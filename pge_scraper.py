@@ -52,7 +52,7 @@ class PgeScraper:
     )
 
     _AMOUNT_REGEX = re.compile(
-        r"(?:\d{1,3}(?:[\s\xa0]\d{3})*(?:[\.,]\d{2})|\d+[\.,]\d{2})"
+        r"(?:\d{1,3}(?:[\s\xa0]\d{3})*(?:[\.,]\d{2})|\d+[\.,]\d{2}|\b0\b)"
     )
     _NO_OUTSTANDING_HINTS: tuple[str, ...] = (
         "brak nale\u017cno\u015bci",
@@ -64,9 +64,14 @@ class PgeScraper:
         "wszystkie p\u0142atno\u015bci zosta\u0142y uregulowane",
         "nie masz \u017cadnych zaleg\u0142o\u015bci",
         "brak danych",
+        "brak nierozliczonych",
+        "nie masz \u017cadnych rachunk\u00f3w",
+        "nie wykazuje zad\u0142u\u017cenia",
+        "brak dokument\u00f3w",
+        "nie masz nic do zap\u0142aty",
     )
     _ZERO_BALANCE_REGEX = re.compile(
-        r"(saldo|do zap(?:\u0142|l)aty|kwota do zap(?:\u0142|l)aty)[^0-9]{0,80}(0[,\.]00)"
+        r"(saldo|do zap(?:\u0142|l)aty|kwota do zap(?:\u0142|l)aty|zap(?:\u0142|l)at|nale(?:\u017c|z)no(?:\u015b|s)(?:c|\u0107)|zaleg(?:\u0142|l)o|suma|razem|bie(?:\u017c|z)(?:a|\u0105)ce)[^0-9]{0,80}(0(?:[,\.]00)?)(?!\d)"
     )
 
     def __post_init__(self) -> None:
@@ -191,8 +196,6 @@ class PgeScraper:
         simplified = raw_payload.lower()
         if any(marker in simplified for marker in cls._NO_OUTSTANDING_HINTS):
             return True
-        if "0,00" not in simplified and "0.00" not in simplified:
-            return False
         return bool(cls._ZERO_BALANCE_REGEX.search(simplified))
 
     @classmethod
