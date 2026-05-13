@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.2.6] - 2026-05-13
+
+### Fixed
+- PL: Naprawiono błąd parsowania faktur wynikający ze zmiany struktury tabel HTML na stronie PGE eBOK (nowe klasy, brak ID tabeli `fakturaDoZaplaty`). Skrypt dynamicznie rozpoznaje teraz kolumny "Płatne do" oraz "Do zapłaty" niezależnie od sztywnej struktury dokumentu.
+- EN: Fixed invoice parsing error caused by HTML table structure changes on the PGE eBOK website. The script now dynamically identifies "Płatne do" (Due date) and "Do zapłaty" (Amount to pay) columns.
+
 ## [1.2.5] - 2026-05-12
 
 ### Fixed

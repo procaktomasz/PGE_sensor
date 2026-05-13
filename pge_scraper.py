@@ -241,52 +241,88 @@ class PgeScraper:
     @classmethod
     def _extract_from_invoice_tables(cls, soup: BeautifulSoup) -> list[BalanceInfo]:
         balances: list[BalanceInfo] = []
-        tables = []
-        for thead in soup.select("thead[id*='fakturaDoZaplaty']"):
-            table = thead.find_parent("table")
-            if table:
-                tables.append(table)
-        if not tables:
-            tables = [
-                table
-                for table in soup.find_all("table")
-                if table.find("thead")
-                and "Termin" in table.find("thead").get_text(" ", strip=True)
-            ]
-        for table in tables:
-            header = table.find("thead")
-            if header and "Termin" not in header.get_text(" ", strip=True):
+        tables_processed = set()
+
+        for table in soup.find_all("table"):
+            thead = table.find("thead")
+            if not thead:
                 continue
-            for row in table.select("tbody tr"):
-                cells = row.find_all("td")
-                if len(cells) < 4:
+
+            headers = [th.get_text(" ", strip=True).lower() for th in thead.find_all("th")]
+            due_date_idx = -1
+            amount_idx = -1
+
+            for i, header in enumerate(headers):
+                if "płatne do" in header or "termin" in header:
+                    due_date_idx = i
+                elif "do zapłaty" in header:
+                    amount_idx = i
+
+            if amount_idx != -1:
+                tables_processed.add(table)
+                for row in table.select("tbody tr"):
+                    cells = row.find_all("td")
+                    if not cells or len(cells) <= max(due_date_idx, amount_idx):
+                        continue
+
+                    due_date_str = cells[due_date_idx].get_text(" ", strip=True) if due_date_idx != -1 else ""
+                    due_date = cls._parse_date(due_date_str)
+
+                    amount = cls._extract_amount_from_text(cells[amount_idx].get_text(" ", strip=True))
+                    if amount is not None:
+                        balances.append(BalanceInfo(amount=amount, due_date=due_date))
+
+        if not balances:
+            tables = []
+            for thead in soup.select("thead[id*='fakturaDoZaplaty']"):
+                table = thead.find_parent("table")
+                if table and table not in tables_processed:
+                    tables.append(table)
+            if not tables:
+                tables = [
+                    table
+                    for table in soup.find_all("table")
+                    if table.find("thead")
+                    and "Termin" in table.find("thead").get_text(" ", strip=True)
+                    and table not in tables_processed
+                ]
+            for table in tables:
+                header = table.find("thead")
+                if header and "Termin" not in header.get_text(" ", strip=True):
                     continue
-                invoice_number = cells[0].get_text(" ", strip=True) or None
-                issue_date = cls._parse_date(cells[1].get_text(" ", strip=True))
-                due_date = cls._parse_date(cells[2].get_text(" ", strip=True))
-                amount = cls._extract_amount_from_text(
-                    cells[3].get_text(" ", strip=True)
-                )
-                if amount is None:
-                    continue
-                balances.append(
-                    BalanceInfo(
-                        amount=amount,
-                        due_date=due_date,
-                        invoice_number=invoice_number,
-                        issue_date=issue_date,
+                for row in table.select("tbody tr"):
+                    cells = row.find_all("td")
+                    if len(cells) < 4:
+                        continue
+                    invoice_number = cells[0].get_text(" ", strip=True) or None
+                    issue_date = cls._parse_date(cells[1].get_text(" ", strip=True))
+                    due_date = cls._parse_date(cells[2].get_text(" ", strip=True))
+                    amount = cls._extract_amount_from_text(
+                        cells[3].get_text(" ", strip=True)
                     )
-                )
+                    if amount is None:
+                        continue
+                    balances.append(
+                        BalanceInfo(
+                            amount=amount,
+                            due_date=due_date,
+                            invoice_number=invoice_number,
+                            issue_date=issue_date,
+                        )
+                    )
         return balances
 
     @staticmethod
     def _parse_date(value: str) -> Optional[date]:
         if not value:
             return None
-        try:
-            return datetime.strptime(value.strip(), "%d.%m.%Y").date()
-        except ValueError:
-            return None
+        match = re.search(r"(\d{2}\.\d{2}\.\d{4})", value)
+        if match:
+            try:
+                return datetime.strptime(match.group(1), "%d.%m.%Y").date()
+            except ValueError:
+                pass
+        return None
 
     @classmethod
     def _extract_amount_from_text(cls, text: str) -> Optional[float]:
