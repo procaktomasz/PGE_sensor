@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import logging
 import re
-import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Optional
@@ -34,10 +33,10 @@ class PgeScraper:
     LOGIN_URL = "https://ebok.gkpge.pl/ebok/profil/logowanie.xhtml"
     DASHBOARD_URL = "https://ebok.gkpge.pl/ebok/"
     INDEX_URL = "https://ebok.gkpge.pl/ebok/index.xhtml"
-    FINANCE_URL = "https://ebok.gkpge.pl/ebok/finanse.xhtml"
+    FINANCE_URL = "https://ebok.gkpge.pl/ebok/finanse/finanse.xhtml"
     FINANCE_FALLBACK_URLS = (
-        "https://ebok.gkpge.pl/ebok/finanse.xhtml",
         "https://ebok.gkpge.pl/ebok/finanse/finanse.xhtml",
+        "https://ebok.gkpge.pl/ebok/finanse.xhtml",
     )
     USER_AGENT = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -229,12 +228,12 @@ class PgeScraper:
 
     @classmethod
     def _extract_from_partial(cls, partial_xml: str) -> list[BalanceInfo]:
-        try:
-            root = ET.fromstring(partial_xml)
-        except ET.ParseError as exc:
-            raise PgeScraperError("Finance response is not valid XML") from exc
+        soup = BeautifulSoup(partial_xml, "html.parser")
+        redirect = soup.find("redirect")
+        if redirect and redirect.get("url"):
+            _LOGGER.debug("PGE portal requested a redirect to: %s", redirect.get("url"))
         balances: list[BalanceInfo] = []
-        for update_node in root.findall(".//update"):
+        for update_node in soup.find_all("update"):
             html_fragment = update_node.text or ""
             balances.extend(cls._extract_from_html(html_fragment))
         return balances

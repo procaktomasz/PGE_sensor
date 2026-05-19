@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.2.7] - 2026-05-19
+
+### Fixed
+- PL: Naprawiono błąd parsowania odpowiedzi z częściowym kodem HTML w XML podczas przekierowań (zastąpiono `xml.etree.ElementTree` przez `BeautifulSoup`).
+- EN: Fixed parsing error of partial HTML within XML responses during redirects (replaced `xml.etree.ElementTree` with `BeautifulSoup`).
+
 ## [1.2.6] - 2026-05-13
 
 ### Fixed
