@@ -7,8 +7,8 @@ All notable changes to this project will be documented in this file. The format 
 ## [1.3.0] - 2026-07-10
 
 ### Added
-- PL: Przejście na nowe, stabilniejsze i szybsze Mobile API PGE (zamiast powolnego parsowania HTML z portalu eBOK).
-- EN: Transition to a new, more stable and faster PGE Mobile API (replacing slow HTML scraping of the eBOK portal).
+- PL: Przejście na nowe, stabilniejsze i szybsze API PGE (zamiast powolnego parsowania HTML z portalu eBOK).
+- EN: Transition to a new, more stable and faster PGE API (replacing slow HTML scraping of the eBOK portal).
 
 ### Changed
 - PL: Oczyszczono repozytorium ze starych, niepotrzebnych skryptów diagnostycznych i zrzutów HAR. Uporządkowano kod.
@@ -91,3 +91,4 @@ All notable changes to this project will be documented in this file. The format 
 ### Added
 
 - Initial release of the PGE Sensor integration.
+- Inicjalizacja projektu
