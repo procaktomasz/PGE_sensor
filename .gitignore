@@ -25,3 +25,6 @@ Thumbs.db
 # Home Assistant / custom components
 *.log
 home-assistant_v2.db
+
+moje_pge_app/
+
