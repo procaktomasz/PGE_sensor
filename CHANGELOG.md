@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-07-10
+
+### Added
+- PL: Przejście na nowe, stabilniejsze i szybsze Mobile API PGE (zamiast powolnego parsowania HTML z portalu eBOK).
+- EN: Transition to a new, more stable and faster PGE Mobile API (replacing slow HTML scraping of the eBOK portal).
+
+### Changed
+- PL: Oczyszczono repozytorium ze starych, niepotrzebnych skryptów diagnostycznych i zrzutów HAR. Uporządkowano kod.
+- EN: Cleaned up the repository from old diagnostic scripts and HAR dumps. Code refactoring.
+
 ## [1.2.7] - 2026-05-19
 
 ### Fixed
