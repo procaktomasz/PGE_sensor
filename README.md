@@ -4,8 +4,8 @@
 
 ### Opis
 Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobierania informacji o zaległościach z portalu PGE Sensor. Dane są scrapowane bezpośrednio z panelu klienta i prezentowane jako:
-- komunikat w konsoli (`pge_scraper.py`) dla szybkiej kontroli salda,
-- sensory w Home Assistant (stan konta + termin płatności) poprzez komponent `custom_components/pge_sensor`.
+- komunikat w konsoli (`pge_scraper.py`) dla szybkiej kontroli salda oraz szczegółów ostatniej faktury,
+- sensory w Home Assistant (stan konta, termin płatności, kwota faktury oraz parametry zużycia energii w kWh) poprzez komponent `custom_components/pge_sensor`.
 
 ### Wymagania
 - Python 3.10+ z zainstalowanymi bibliotekami `requests` oraz `beautifulsoup4`.
@@ -23,8 +23,12 @@ Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobiera
 2. Przeładuj HA lub wykonaj `Odśwież integracje`.
 3. Dodaj integrację „PGE Sensor” z poziomu interfejsu (Konfiguracja → Urządzenia i Usługi → Dodaj integrację) i podaj dane logowania.
 4. Koordynator aktualizuje dane co 8 godzin (`SCAN_INTERVAL`), a po błędach przechodzi na 30-minutowe próby. Sensory:
-   - `PGE Balance` (`sensor.pge_balance`) – saldo w PLN.
-   - `PGE Payment Due Date` (`sensor.pge_payment_due_date`) – termin płatności.
+   - `PGE Balance` (`sensor.pge_balance`) – Kwota pozostała do zapłaty w PLN. Posiada dodatkowe atrybuty: Punkt Poboru Medium (PPE), Data opłacenia (Paid Date), Status płatności (Payment Status), Numer faktury (Invoice Number) oraz Data wystawienia (Issue Date).
+   - `PGE Payment Due Date` (`sensor.pge_payment_due_date`) – Termin płatności rachunku.
+   - `PGE Invoice Amount` (`sensor.pge_invoice_amount`) – Oryginalna, całkowita kwota na jaką opiewała najnowsza faktura (przed jakimikolwiek wpłatami).
+   - `PGE Consumed Energy` (`sensor.pge_consumed_energy`) – Energia pobrana (w kWh). Sumaryczna ilość prądu, która popłynęła z sieci do Twojego domu.
+   - `PGE Feed-in Energy` (`sensor.pge_feed_in_energy`) – Energia wprowadzona (w kWh). Nadwyżka energii wyprodukowana przez Twoją instalację i wprowadzona do sieci.
+   - `PGE Settled Energy` (`sensor.pge_settled_energy`) – Wartość zużycia po rozliczeniu (w kWh). Faktyczna ilość energii, za którą finalnie PGE wystawiło Ci rachunek po "zbilansowaniu" energii pobranej i wprowadzonej do sieci.
 
 ### Rozwiązywanie problemów
 - Jeśli portal wymaga dodatkowej autoryzacji (SMS, e-mail), zaloguj się ręcznie w przeglądarce i zaakceptuj żądanie.
@@ -50,8 +54,8 @@ To projekt prywatny, który nie jest powiązany, sponsorowany ani wspierany prze
 
 ### Overview
 This repository ships both a lightweight CLI scraper (`pge_scraper.py`) and a Home Assistant custom integration located in `custom_components/pge_sensor`. The code signs in to the PGE Sensor customer portal, parses outstanding invoices and exposes:
-- console output for quick balance checks,
-- Home Assistant sensors with the outstanding amount and optional due date.
+- console output for quick balance checks and latest invoice details,
+- Home Assistant sensors with the outstanding amount, due date, invoice amount, and energy consumption metrics (kWh).
 
 ### Requirements
 - Python 3.10+ with `requests` and `beautifulsoup4` available.
@@ -69,8 +73,12 @@ This repository ships both a lightweight CLI scraper (`pge_scraper.py`) and a Ho
 2. Reload Home Assistant (or use the “Reload integrations” UI action).
 3. Add the “PGE Sensor” integration via the UI and supply your login/password.
 4. The `DataUpdateCoordinator` refreshes the portal every 8 hours and switches to 30-minute retries after failures. Available entities:
-   - `PGE Balance` (`sensor.pge_balance`) – outstanding amount in PLN.
-   - `PGE Payment Due Date` (`sensor.pge_payment_due_date`) – next due date if present.
+   - `PGE Balance` (`sensor.pge_balance`) – Outstanding amount to pay in PLN. Contains extra attributes: PPE, Paid Date, Payment Status, Invoice Number, and Issue Date.
+   - `PGE Payment Due Date` (`sensor.pge_payment_due_date`) – Next payment due date if present.
+   - `PGE Invoice Amount` (`sensor.pge_invoice_amount`) – The original total amount of the latest invoice.
+   - `PGE Consumed Energy` (`sensor.pge_consumed_energy`) – Consumed energy (in kWh). The amount of electricity drawn from the grid.
+   - `PGE Feed-in Energy` (`sensor.pge_feed_in_energy`) – Feed-in energy (in kWh). Energy produced by your installation and fed back into the grid.
+   - `PGE Settled Energy` (`sensor.pge_settled_energy`) – Settled energy (in kWh). The final amount of energy you were billed for after settling consumed vs feed-in energy.
 
 ### Troubleshooting
 - Solve any two-factor prompts directly in the official portal before running the scraper.

@@ -7,6 +7,7 @@ from datetime import date
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
+    SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_USERNAME
@@ -39,10 +40,12 @@ async def async_setup_entry(
 
     entities: list[SensorEntity] = [
         PgeBalanceSensor(coordinator, slug, username),
+        PgeInvoiceAmountSensor(coordinator, slug, username),
+        PgeConsumedEnergySensor(coordinator, slug, username),
+        PgeFeedInEnergySensor(coordinator, slug, username),
+        PgeSettledEnergySensor(coordinator, slug, username),
+        PgeDueDateSensor(coordinator, slug, username),
     ]
-
-    if coordinator.data and coordinator.data.due_date:
-        entities.append(PgeDueDateSensor(coordinator, slug, username))
 
     async_add_entities(entities)
 
@@ -88,10 +91,17 @@ class PgeBalanceSensor(PgeBaseSensor):
         if not self.coordinator.data:
             return None
         attributes = {}
-        if self.coordinator.data.invoice_number:
-            attributes["invoice_number"] = self.coordinator.data.invoice_number
-        if self.coordinator.data.issue_date:
-            attributes["issue_date"] = self.coordinator.data.issue_date.isoformat()
+        data = self.coordinator.data
+        if data.invoice_number:
+            attributes["invoice_number"] = data.invoice_number
+        if data.issue_date:
+            attributes["issue_date"] = data.issue_date.isoformat()
+        if data.paid_date:
+            attributes["paid_date"] = data.paid_date.isoformat()
+        if data.payment_status:
+            attributes["payment_status"] = data.payment_status
+        if data.ppe:
+            attributes["ppe"] = data.ppe
         return attributes or None
 
 
@@ -116,3 +126,94 @@ class PgeDueDateSensor(PgeBaseSensor):
         else:
             self._attr_available = True
         super()._handle_coordinator_update()
+
+
+class PgeInvoiceAmountSensor(PgeBaseSensor):
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = MONETARY_UNIT
+    _attr_name = "PGE Invoice Amount"
+
+    @property
+    def unique_id(self) -> str:
+        return f"{self._slug}_invoice_amount"
+
+    @property
+    def native_value(self) -> float | None:
+        if self.coordinator.data and self.coordinator.data.invoice_amount is not None:
+            return round(self.coordinator.data.invoice_amount, 2)
+        return None
+
+    @property
+    def available(self) -> bool:
+        if not super().available:
+            return False
+        return self.coordinator.data.invoice_amount is not None
+
+
+class PgeConsumedEnergySensor(PgeBaseSensor):
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_native_unit_of_measurement = "kWh"
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_name = "PGE Consumed Energy"
+
+    @property
+    def unique_id(self) -> str:
+        return f"{self._slug}_consumed_energy"
+
+    @property
+    def native_value(self) -> float | None:
+        if self.coordinator.data and self.coordinator.data.consumed_energy is not None:
+            return self.coordinator.data.consumed_energy
+        return None
+
+    @property
+    def available(self) -> bool:
+        if not super().available:
+            return False
+        return self.coordinator.data.consumed_energy is not None
+
+
+class PgeFeedInEnergySensor(PgeBaseSensor):
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_native_unit_of_measurement = "kWh"
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_name = "PGE Feed-in Energy"
+
+    @property
+    def unique_id(self) -> str:
+        return f"{self._slug}_feed_in_energy"
+
+    @property
+    def native_value(self) -> float | None:
+        if self.coordinator.data and self.coordinator.data.feed_in_energy is not None:
+            return self.coordinator.data.feed_in_energy
+        return None
+
+    @property
+    def available(self) -> bool:
+        if not super().available:
+            return False
+        return self.coordinator.data.feed_in_energy is not None
+
+
+class PgeSettledEnergySensor(PgeBaseSensor):
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_native_unit_of_measurement = "kWh"
+    _attr_state_class = SensorStateClass.TOTAL
+    _attr_name = "PGE Settled Energy"
+
+    @property
+    def unique_id(self) -> str:
+        return f"{self._slug}_settled_energy"
+
+    @property
+    def native_value(self) -> float | None:
+        if self.coordinator.data and self.coordinator.data.settled_energy is not None:
+            return self.coordinator.data.settled_energy
+        return None
+
+    @property
+    def available(self) -> bool:
+        if not super().available:
+            return False
+        return self.coordinator.data.settled_energy is not None

@@ -53,6 +53,17 @@ def main() -> int:
         print(f"Outstanding amount: {balance.amount:.2f} PLN (due {due_text})")
     else:
         print(f"Outstanding amount: {balance.amount:.2f} PLN (due date unavailable)")
+        
+    print("\n--- LATEST INVOICE DETAILS ---")
+    print(f"Invoice Number: {balance.invoice_number}")
+    print(f"Issue Date: {balance.issue_date}")
+    print(f"Invoice Amount: {balance.invoice_amount}")
+    print(f"Payment Status: {balance.payment_status}")
+    print(f"Paid Date: {balance.paid_date}")
+    print(f"PPE: {balance.ppe}")
+    print(f"Consumed Energy: {balance.consumed_energy} kWh")
+    print(f"Feed-in Energy: {balance.feed_in_energy} kWh")
+    print(f"Settled Energy: {balance.settled_energy} kWh")
     return 0
 
 if __name__ == "__main__":

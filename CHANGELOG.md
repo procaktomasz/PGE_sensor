@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-08-07
+
+### Added
+- PL: Dodano nowe sensory energii dla ostatniej faktury: Kwota faktury, Energia pobrana, Energia wprowadzona (dla prosumentów) oraz Zużycie po rozliczeniu (wyrażone w kWh z obsługą Panelu Energia).
+- EN: Added new energy sensors for the latest invoice: Invoice Amount, Consumed Energy, Feed-in Energy (for prosumers) and Settled Energy (in kWh, compatible with HA Energy Dashboard).
+- PL: Dodano nowe atrybuty do głównego sensora salda (m m.in. PPE, Data opłacenia, Status płatności).
+- EN: Added new attributes to the main balance sensor (e.g. PPE, Paid Date, Payment Status).
+
+### Fixed
+- PL: Naprawiono błąd polegający na niezwracaniu zerowego salda po opłaceniu faktury przez odczytywanie statusu bezpośrednio z dokumentu zamiast z salda ogólnego.
+- EN: Fixed an issue where the balance would not return 0.0 after invoice payment by checking the payment status directly from the document instead of the general balance.
+
 ## [1.3.0] - 2026-07-10
 
 ### Added

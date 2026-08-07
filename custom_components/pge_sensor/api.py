@@ -18,12 +18,19 @@ class PgeScraperError(RuntimeError):
 
 @dataclass
 class BalanceInfo:
-    """Represents a single outstanding payment entry."""
+    """Represents a single outstanding payment entry and latest invoice details."""
 
     amount: float
     due_date: Optional[date] = None
     invoice_number: Optional[str] = None
     issue_date: Optional[date] = None
+    paid_date: Optional[date] = None
+    payment_status: Optional[str] = None
+    ppe: Optional[str] = None
+    consumed_energy: Optional[float] = None
+    feed_in_energy: Optional[float] = None
+    settled_energy: Optional[float] = None
+    invoice_amount: Optional[float] = None
 
 
 class PgeScraper:
@@ -75,9 +82,8 @@ class PgeScraper:
         ]
 
         if not unpaid_docs:
-            return BalanceInfo(amount=amount)
+            amount = 0.0
 
-        # Sort by due date (closest first)
         def parse_date(date_str: str) -> datetime:
             try:
                 # Format is usually "2026-02-24 00:00:00.000"
@@ -85,22 +91,59 @@ class PgeScraper:
             except Exception:
                 return datetime.max
 
-        unpaid_docs.sort(key=lambda d: parse_date(d.get("paymentDueDate", "9999-12-31 00:00:00")))
-        
-        target_doc = unpaid_docs[0]
         due_date = None
-        if target_doc.get("paymentDueDate"):
-            due_date = parse_date(target_doc["paymentDueDate"]).date()
-            
+        if unpaid_docs:
+            unpaid_docs.sort(key=lambda d: parse_date(d.get("paymentDueDate", "9999-12-31 00:00:00")))
+            due_date = parse_date(unpaid_docs[0].get("paymentDueDate", "9999-12-31 00:00:00")).date()
+
+        target_doc = documents[0] if documents else None
+        
         issue_date = None
-        if target_doc.get("creationDate"):
-            issue_date = parse_date(target_doc["creationDate"]).date()
+        paid_date = None
+        invoice_number = None
+        payment_status = None
+        ppe = None
+        consumed_energy = None
+        feed_in_energy = None
+        settled_energy = None
+        invoice_amount = None
+
+        if target_doc:
+            invoice_number = target_doc.get("documentNumber")
+            payment_status = target_doc.get("paymentStatus")
+            invoice_amount = target_doc.get("totalAmount")
+            
+            if target_doc.get("creationDate"):
+                issue_date = parse_date(target_doc["creationDate"]).date()
+            if target_doc.get("paidDate"):
+                paid_date = parse_date(target_doc["paidDate"]).date()
+            
+            ppm_consumptions = target_doc.get("ppmConsumptions", [])
+            if ppm_consumptions:
+                latest_ppm = ppm_consumptions[0]
+                ppe = latest_ppm.get("ppmNumber")
+                consumed_energy = latest_ppm.get("consumptionValue")
+                feed_in_energy = latest_ppm.get("feedInValue")
+                settled_energy = latest_ppm.get("valueSettledEnergyConsumed")
+            
+            # If no unpaid doc, we can still provide a due date from the latest doc
+            if not due_date and target_doc.get("paymentDueDate"):
+                date_parsed = parse_date(target_doc["paymentDueDate"])
+                if date_parsed != datetime.max:
+                    due_date = date_parsed.date()
 
         return BalanceInfo(
             amount=amount,
             due_date=due_date,
-            invoice_number=target_doc.get("documentNumber"),
-            issue_date=issue_date
+            invoice_number=invoice_number,
+            issue_date=issue_date,
+            paid_date=paid_date,
+            payment_status=payment_status,
+            ppe=ppe,
+            consumed_energy=consumed_energy,
+            feed_in_energy=feed_in_energy,
+            settled_energy=settled_energy,
+            invoice_amount=invoice_amount
         )
 
     def _login(self) -> None:
