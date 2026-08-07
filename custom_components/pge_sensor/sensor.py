@@ -74,7 +74,7 @@ class PgeBaseSensor(CoordinatorEntity[PgeEbokCoordinator], SensorEntity):
 class PgeBalanceSensor(PgeBaseSensor):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_native_unit_of_measurement = MONETARY_UNIT
-    _attr_name = "PGE Balance"
+    _attr_name = "PGE Saldo"
 
     @property
     def unique_id(self) -> str:
@@ -107,7 +107,7 @@ class PgeBalanceSensor(PgeBaseSensor):
 
 class PgeDueDateSensor(PgeBaseSensor):
     _attr_device_class = SensorDeviceClass.DATE
-    _attr_name = "PGE Payment Due Date"
+    _attr_name = "PGE Termin płatności"
 
     @property
     def unique_id(self) -> str:
@@ -131,7 +131,7 @@ class PgeDueDateSensor(PgeBaseSensor):
 class PgeInvoiceAmountSensor(PgeBaseSensor):
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_native_unit_of_measurement = MONETARY_UNIT
-    _attr_name = "PGE Invoice Amount"
+    _attr_name = "PGE Kwota faktury"
 
     @property
     def unique_id(self) -> str:
@@ -154,7 +154,7 @@ class PgeConsumedEnergySensor(PgeBaseSensor):
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_native_unit_of_measurement = "kWh"
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
-    _attr_name = "PGE Consumed Energy"
+    _attr_name = "PGE Energia pobrana"
 
     @property
     def unique_id(self) -> str:
@@ -177,7 +177,7 @@ class PgeFeedInEnergySensor(PgeBaseSensor):
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_native_unit_of_measurement = "kWh"
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
-    _attr_name = "PGE Feed-in Energy"
+    _attr_name = "PGE Energia wprowadzona"
 
     @property
     def unique_id(self) -> str:
@@ -200,7 +200,7 @@ class PgeSettledEnergySensor(PgeBaseSensor):
     _attr_device_class = SensorDeviceClass.ENERGY
     _attr_native_unit_of_measurement = "kWh"
     _attr_state_class = SensorStateClass.TOTAL
-    _attr_name = "PGE Settled Energy"
+    _attr_name = "PGE Zużycie po rozliczeniu"
 
     @property
     def unique_id(self) -> str:
