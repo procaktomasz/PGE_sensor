@@ -28,8 +28,9 @@ class BalanceInfo:
     payment_status: Optional[str] = None
     ppe: Optional[str] = None
     consumed_energy: Optional[float] = None
-    feed_in_energy: Optional[float] = None
-    settled_energy: Optional[float] = None
+    feed_in_energy: float | None = None
+    settled_energy: float | None = None
+    energy_storage: dict | None = None
     invoice_amount: Optional[float] = None
 
 
@@ -38,6 +39,7 @@ class PgeScraper:
 
     AUTH_URL = "https://mbok-services.gkpge.pl/authorization-service/api/auth/login"
     BILLING_ACCOUNTS_URL = "https://mbok-services.gkpge.pl/billing-service-v1/billingAccounts/filter"
+    BASE_URL = "https://mbok-services.gkpge.pl"
     
     def __init__(self, username: str, password: str, *, timeout: int = 15) -> None:
         if not username or not password:
@@ -107,11 +109,13 @@ class PgeScraper:
         feed_in_energy = None
         settled_energy = None
         invoice_amount = None
+        energy_storage = None
 
         if target_doc:
             invoice_number = target_doc.get("documentNumber")
             payment_status = target_doc.get("paymentStatus")
             invoice_amount = target_doc.get("totalAmount")
+            document_id = target_doc.get("documentId")
             
             if target_doc.get("creationDate"):
                 issue_date = parse_date(target_doc["creationDate"]).date()
@@ -125,6 +129,19 @@ class PgeScraper:
                 consumed_energy = latest_ppm.get("consumptionValue")
                 feed_in_energy = latest_ppm.get("feedInValue")
                 settled_energy = latest_ppm.get("valueSettledEnergyConsumed")
+
+                # Fetch datawarehouse if prosument
+                if target_doc.get("prosument") is True:
+                    ppm_id = latest_ppm.get("ppm", {}).get("id")
+                    if document_id and ppm_id:
+                        datawarehouse_url = f"{self.BASE_URL}/mbok-service-v1/billingAccountsDocument/{document_id}/datawarehouse/{ppm_id}"
+                        try:
+                            dw_response = self._session.get(datawarehouse_url, timeout=self._timeout)
+                            if dw_response.status_code == 200:
+                                energy_storage = dw_response.json()
+                        except Exception:
+                            # If it fails, simply leave energy_storage as None
+                            pass
             
             # If no unpaid doc, we can still provide a due date from the latest doc
             if not due_date and target_doc.get("paymentDueDate"):
@@ -143,7 +160,8 @@ class PgeScraper:
             consumed_energy=consumed_energy,
             feed_in_energy=feed_in_energy,
             settled_energy=settled_energy,
-            invoice_amount=invoice_amount
+            invoice_amount=invoice_amount,
+            energy_storage=energy_storage
         )
 
     def _login(self) -> None:

@@ -3,12 +3,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
+from homeassistant.components.sensor.const import StateType
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_USERNAME
 from homeassistant.core import HomeAssistant, callback
@@ -44,6 +46,7 @@ async def async_setup_entry(
         PgeConsumedEnergySensor(coordinator, slug, username),
         PgeFeedInEnergySensor(coordinator, slug, username),
         PgeSettledEnergySensor(coordinator, slug, username),
+        PgeEnergyStorageSensor(coordinator, slug, username),
         PgeDueDateSensor(coordinator, slug, username),
     ]
 
@@ -217,3 +220,53 @@ class PgeSettledEnergySensor(PgeBaseSensor):
         if not super().available:
             return False
         return self.coordinator.data.settled_energy is not None
+
+
+class PgeEnergyStorageSensor(PgeBaseSensor):
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_native_unit_of_measurement = "kWh"
+    _attr_state_class = SensorStateClass.TOTAL
+    _attr_name = "PGE Magazyn energii"
+
+    @property
+    def unique_id(self) -> str:
+        return f"{self._slug}_energy_storage"
+
+    @property
+    def native_value(self) -> StateType:
+        storage = self.coordinator.data.energy_storage
+        if storage:
+            zones = storage.get("zones", {})
+            strefa_1 = zones.get("Strefa 1") or zones.get("Strefa 1 w sumie") or next(iter(zones.values()), {})
+            summary = strefa_1.get("dataWarehouseSummary", {})
+            if "leftEnergyAmountSum" in summary:
+                return summary.get("leftEnergyAmountSum")
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        attrs = {}
+        storage = self.coordinator.data.energy_storage
+        if storage:
+            zones = storage.get("zones", {})
+            strefa_1 = zones.get("Strefa 1") or zones.get("Strefa 1 w sumie") or next(iter(zones.values()), {})
+            summary = strefa_1.get("dataWarehouseSummary", {})
+            
+            if "settledEnergyAmountSumWithFactor" in summary:
+                attrs["settled_energy_sum_with_factor"] = summary.get("settledEnergyAmountSumWithFactor")
+            if "settledEnergyAmountSum" in summary:
+                attrs["settled_energy_sum"] = summary.get("settledEnergyAmountSum")
+            if "factor" in summary:
+                attrs["factor"] = summary.get("factor")
+                
+            history = strefa_1.get("dataWarehousePpm")
+            if history:
+                attrs["history"] = history
+
+        return attrs
+
+    @property
+    def available(self) -> bool:
+        if not super().available:
+            return False
+        return self.coordinator.data.energy_storage is not None

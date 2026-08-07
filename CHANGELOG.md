@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file. The format 
 ## [1.4.0] - 2026-08-07
 
 ### Added
+- PL: Dodano nowy sensor `PGE Magazyn energii`, który podaje ilość pozostałej energii do rozliczenia (w kWh) oraz wyświetla w atrybutach szczegółowe, miesięczne podsumowanie rozliczeń magazynu prosumenckiego.
+- EN: Added new `PGE Magazyn energii` (Energy Storage) sensor exposing the remaining energy balance and detailed monthly prosumer storage data as attributes.
 - PL: Dodano nowe sensory energii dla ostatniej faktury: Kwota faktury, Energia pobrana, Energia wprowadzona (dla prosumentów) oraz Zużycie po rozliczeniu (wyrażone w kWh z obsługą Panelu Energia).
 - EN: Added new energy sensors for the latest invoice: Invoice Amount, Consumed Energy, Feed-in Energy (for prosumers) and Settled Energy (in kWh, compatible with HA Energy Dashboard).
 - PL: Dodano nowe atrybuty do głównego sensora salda (m m.in. PPE, Data opłacenia, Status płatności).

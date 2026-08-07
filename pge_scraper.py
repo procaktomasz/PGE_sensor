@@ -64,6 +64,23 @@ def main() -> int:
     print(f"Consumed Energy: {balance.consumed_energy} kWh")
     print(f"Feed-in Energy: {balance.feed_in_energy} kWh")
     print(f"Settled Energy: {balance.settled_energy} kWh")
+    
+    storage = balance.energy_storage
+    if storage:
+        print("\n--- MAGAZYN ENERGII ---")
+        zones = storage.get("zones", {})
+        strefa_1 = zones.get("Strefa 1") or zones.get("Strefa 1 w sumie") or next(iter(zones.values()), {})
+        summary = strefa_1.get("dataWarehouseSummary", {})
+        print(f"Ilość pozostałej do rozliczenia energii: {summary.get('leftEnergyAmountSum', 0)} kWh")
+        print(f"Rozliczona energia wprowadzona (z uwzględnieniem współczynnika {summary.get('factor')}): {summary.get('settledEnergyAmountSumWithFactor')} kWh")
+        history = strefa_1.get("dataWarehousePpm", [])
+        if history:
+            print("\nRozbicie na miesiące:")
+            for item in history:
+                date_str = item.get("insertToGridDate", "").split("T")[0]
+                print(f" - {date_str}: rozliczono {item.get('settledEnergyAmount')} kWh | pozostaje {item.get('leftEnergyAmount')} kWh")
+        print("-----------------------")
+        
     return 0
 
 if __name__ == "__main__":

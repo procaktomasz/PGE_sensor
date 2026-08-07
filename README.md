@@ -29,6 +29,7 @@ Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobiera
    - `PGE Consumed Energy` (`sensor.pge_consumed_energy`) – Energia pobrana (w kWh). Sumaryczna ilość prądu, która popłynęła z sieci do Twojego domu.
    - `PGE Feed-in Energy` (`sensor.pge_feed_in_energy`) – Energia wprowadzona (w kWh). Nadwyżka energii wyprodukowana przez Twoją instalację i wprowadzona do sieci.
    - `PGE Settled Energy` (`sensor.pge_settled_energy`) – Wartość zużycia po rozliczeniu (w kWh). Faktyczna ilość energii, za którą finalnie PGE wystawiło Ci rachunek po "zbilansowaniu" energii pobranej i wprowadzonej do sieci.
+   - `PGE Magazyn energii` (`sensor.pge_magazyn_energii`) – Ilość pozostałej do rozliczenia energii. Atrybuty sensora zawierają ponadto pełną historię rozliczonych miesięcy oraz odpowiednie współczynniki.
 
 ### Rozwiązywanie problemów
 - Jeśli portal wymaga dodatkowej autoryzacji (SMS, e-mail), zaloguj się ręcznie w przeglądarce i zaakceptuj żądanie.
@@ -79,6 +80,7 @@ This repository ships both a lightweight CLI scraper (`pge_scraper.py`) and a Ho
    - `PGE Consumed Energy` (`sensor.pge_consumed_energy`) – Consumed energy (in kWh). The amount of electricity drawn from the grid.
    - `PGE Feed-in Energy` (`sensor.pge_feed_in_energy`) – Feed-in energy (in kWh). Energy produced by your installation and fed back into the grid.
    - `PGE Settled Energy` (`sensor.pge_settled_energy`) – Settled energy (in kWh). The final amount of energy you were billed for after settling consumed vs feed-in energy.
+   - `PGE Magazyn energii` (`sensor.pge_energy_storage`) – Energy Storage balance (in kWh) representing remaining energy. Attributes contain detailed monthly history and settlement factors.
 
 ### Troubleshooting
 - Solve any two-factor prompts directly in the official portal before running the scraper.
