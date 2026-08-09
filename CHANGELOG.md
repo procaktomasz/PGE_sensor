@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.4.2] - 2026-08-09
+
+### Fixed
+- PL: Usunięto błąd, który wymuszał wyzerowanie sensora `PGE Saldo` jeśli najnowsze dokumenty miały status opłaconych. Zmiana przywraca prawidłowe wyświetlanie nadpłat oraz zadłużeń innych niż standardowe faktury.
+- EN: Removed a bug that forced the `PGE Saldo` sensor to 0.0 if recent documents were paid. This change restores accurate reporting of overpayments and non-invoice debts.
+
 ## [1.4.1] - 2026-08-07
 
 ### Added

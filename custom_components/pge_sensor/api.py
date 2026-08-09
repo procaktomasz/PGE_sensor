@@ -83,9 +83,6 @@ class PgeScraper:
             if doc.get("amountToPay", 0.0) > 0 or doc.get("paymentStatus") != "PAID"
         ]
 
-        if not unpaid_docs:
-            amount = 0.0
-
         def parse_date(date_str: str) -> datetime:
             try:
                 # Format is usually "2026-02-24 00:00:00.000"
