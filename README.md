@@ -30,6 +30,8 @@ Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobiera
    - `PGE Feed-in Energy` (`sensor.pge_feed_in_energy`) – Energia wprowadzona (w kWh). Nadwyżka energii wyprodukowana przez Twoją instalację i wprowadzona do sieci.
    - `PGE Settled Energy` (`sensor.pge_settled_energy`) – Wartość zużycia po rozliczeniu (w kWh). Faktyczna ilość energii, za którą finalnie PGE wystawiło Ci rachunek po "zbilansowaniu" energii pobranej i wprowadzonej do sieci.
    - `PGE Magazyn energii` (`sensor.pge_magazyn_energii`) – Ilość pozostałej do rozliczenia energii. Atrybuty sensora zawierają ponadto pełną historię rozliczonych miesięcy oraz odpowiednie współczynniki.
+   - `PGE Okres rozliczeniowy` (`sensor.pge_okres_rozliczeniowy`) – Przedział dat (np. 01.01.2026 - 30.06.2026), za który została wystawiona najnowsza faktura.
+   - `PGE Bieżąca płatność` (`sensor.pge_biezaca_platnosc`) – Kwota (w PLN) pozostała do zapłaty wyłącznie za najnowszą, konkretną fakturę (w przeciwieństwie do salda, które obejmuje całe konto).
 
 ### Rozwiązywanie problemów
 - Jeśli portal wymaga dodatkowej autoryzacji (SMS, e-mail), zaloguj się ręcznie w przeglądarce i zaakceptuj żądanie.
@@ -81,6 +83,8 @@ This repository ships both a lightweight CLI scraper (`pge_scraper.py`) and a Ho
    - `PGE Feed-in Energy` (`sensor.pge_feed_in_energy`) – Feed-in energy (in kWh). Energy produced by your installation and fed back into the grid.
    - `PGE Settled Energy` (`sensor.pge_settled_energy`) – Settled energy (in kWh). The final amount of energy you were billed for after settling consumed vs feed-in energy.
    - `PGE Magazyn energii` (`sensor.pge_energy_storage`) – Energy Storage balance (in kWh) representing remaining energy. Attributes contain detailed monthly history and settlement factors.
+   - `PGE Okres rozliczeniowy` (`sensor.pge_billing_period`) – Date range (e.g. 01.01.2026 - 30.06.2026) for which the latest invoice was issued.
+   - `PGE Bieżąca płatność` (`sensor.pge_current_payment`) – The remaining amount (in PLN) to be paid specifically for the latest invoice (as opposed to the overall account balance).
 
 ### Troubleshooting
 - Solve any two-factor prompts directly in the official portal before running the scraper.

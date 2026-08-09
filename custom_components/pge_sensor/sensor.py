@@ -46,6 +46,8 @@ async def async_setup_entry(
         PgeFeedInEnergySensor(coordinator, slug, username),
         PgeSettledEnergySensor(coordinator, slug, username),
         PgeEnergyStorageSensor(coordinator, slug, username),
+        PgeBillingPeriodSensor(coordinator, slug, username),
+        PgeCurrentPaymentSensor(coordinator, slug, username),
         PgeDueDateSensor(coordinator, slug, username),
     ]
 
@@ -269,3 +271,45 @@ class PgeEnergyStorageSensor(PgeBaseSensor):
         if not super().available:
             return False
         return self.coordinator.data.energy_storage is not None
+
+class PgeBillingPeriodSensor(PgeBaseSensor):
+    _attr_device_class = None
+    _attr_icon = "mdi:calendar-range"
+    _attr_name = "PGE Okres rozliczeniowy"
+
+    @property
+    def unique_id(self) -> str:
+        return f"{self._slug}_billing_period"
+
+    @property
+    def native_value(self) -> str | None:
+        if self.coordinator.data:
+            return self.coordinator.data.billing_period
+        return None
+
+    @property
+    def available(self) -> bool:
+        if not super().available:
+            return False
+        return self.coordinator.data.billing_period is not None
+
+class PgeCurrentPaymentSensor(PgeBaseSensor):
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = MONETARY_UNIT
+    _attr_name = "PGE Bieżąca płatność"
+
+    @property
+    def unique_id(self) -> str:
+        return f"{self._slug}_current_payment"
+
+    @property
+    def native_value(self) -> float | None:
+        if self.coordinator.data and self.coordinator.data.current_payment is not None:
+            return round(self.coordinator.data.current_payment, 2)
+        return None
+
+    @property
+    def available(self) -> bool:
+        if not super().available:
+            return False
+        return self.coordinator.data.current_payment is not None

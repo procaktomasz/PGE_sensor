@@ -32,6 +32,8 @@ class BalanceInfo:
     settled_energy: float | None = None
     energy_storage: dict | None = None
     invoice_amount: Optional[float] = None
+    billing_period: Optional[str] = None
+    current_payment: Optional[float] = None
 
 
 class PgeScraper:
@@ -85,7 +87,7 @@ class PgeScraper:
 
         def parse_date(date_str: str) -> datetime:
             try:
-                # Format is usually "2026-02-24 00:00:00.000"
+                date_str = date_str.replace("T", " ")
                 return datetime.strptime(date_str.split(".")[0], "%Y-%m-%d %H:%M:%S")
             except Exception:
                 return datetime.max
@@ -107,6 +109,8 @@ class PgeScraper:
         settled_energy = None
         invoice_amount = None
         energy_storage = None
+        billing_period = None
+        current_payment = None
 
         if target_doc:
             invoice_number = target_doc.get("documentNumber")
@@ -118,10 +122,20 @@ class PgeScraper:
                 issue_date = parse_date(target_doc["creationDate"]).date()
             if target_doc.get("paidDate"):
                 paid_date = parse_date(target_doc["paidDate"]).date()
-            
+                
+            current_payment = target_doc.get("amountToPay")
             ppm_consumptions = target_doc.get("ppmConsumptions", [])
             if ppm_consumptions:
                 latest_ppm = ppm_consumptions[0]
+                period_from = latest_ppm.get("billingPeriodFrom")
+                period_to = latest_ppm.get("billingPeriodTo")
+                if period_from and period_to:
+                    try:
+                        d_from = parse_date(period_from).strftime("%d.%m.%Y")
+                        d_to = parse_date(period_to).strftime("%d.%m.%Y")
+                        billing_period = f"{d_from} - {d_to}"
+                    except Exception:
+                        billing_period = None
                 ppe = latest_ppm.get("ppmNumber")
                 consumed_energy = latest_ppm.get("consumptionValue")
                 feed_in_energy = latest_ppm.get("feedInValue")
@@ -158,7 +172,9 @@ class PgeScraper:
             feed_in_energy=feed_in_energy,
             settled_energy=settled_energy,
             invoice_amount=invoice_amount,
-            energy_storage=energy_storage
+            energy_storage=energy_storage,
+            billing_period=billing_period,
+            current_payment=current_payment
         )
 
     def _login(self) -> None:

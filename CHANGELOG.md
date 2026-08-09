@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [1.4.2] - 2026-08-09
 
+### Added
+- PL: Dodano sensor `PGE Okres rozliczeniowy` podający w formie tekstu przedział dat, za który została wystawiona najnowsza faktura.
+- EN: Added `PGE Okres rozliczeniowy` (Billing Period) sensor exposing the date range for the latest invoice.
+- PL: Dodano sensor `PGE Bieżąca płatność` podający kwotę, jaka pozostała do zapłaty dla najnowszej faktury.
+- EN: Added `PGE Bieżąca płatność` (Current Payment) sensor exposing the exact remaining amount to be paid for the latest invoice.
+
 ### Fixed
 - PL: Usunięto błąd, który wymuszał wyzerowanie sensora `PGE Saldo` jeśli najnowsze dokumenty miały status opłaconych. Zmiana przywraca prawidłowe wyświetlanie nadpłat oraz zadłużeń innych niż standardowe faktury.
 - EN: Removed a bug that forced the `PGE Saldo` sensor to 0.0 if recent documents were paid. This change restores accurate reporting of overpayments and non-invoice debts.

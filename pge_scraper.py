@@ -64,6 +64,8 @@ def main() -> int:
     print(f"Consumed Energy: {balance.consumed_energy} kWh")
     print(f"Feed-in Energy: {balance.feed_in_energy} kWh")
     print(f"Settled Energy: {balance.settled_energy} kWh")
+    print(f"Billing Period: {balance.billing_period}")
+    print(f"Current Payment: {balance.current_payment} PLN")
     
     storage = balance.energy_storage
     if storage:
