@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.4.3] - 2026-08-10
+
+### Fixed
+- PL: Naprawiono błąd wygasania sesji po kilku godzinach, który powodował, że Home Assistant wyrzucał błąd "Failed to fetch billing accounts".
+- EN: Fixed session expiration bug that caused Home Assistant to throw "Failed to fetch billing accounts" after several hours.
+
 ## [1.4.2] - 2026-08-09
 
 ### Added

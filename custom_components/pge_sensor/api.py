@@ -61,8 +61,8 @@ class PgeScraper:
 
     def get_balance_details(self) -> BalanceInfo:
         """Return the outstanding payment along with its due date."""
-        if not self._access_token:
-            self._login()
+        # Always perform a fresh login to ensure the access token is valid (it expires over time)
+        self._login()
 
         # Update headers with auth token
         self._session.headers.update({"Authorization": f"Bearer {self._access_token}"})
