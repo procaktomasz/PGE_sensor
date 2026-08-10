@@ -23,12 +23,12 @@ Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobiera
 2. Przeładuj HA lub wykonaj `Odśwież integracje`.
 3. Dodaj integrację „PGE Sensor” z poziomu interfejsu (Konfiguracja → Urządzenia i Usługi → Dodaj integrację) i podaj dane logowania.
 4. Koordynator aktualizuje dane co 8 godzin (`SCAN_INTERVAL`), a po błędach przechodzi na 30-minutowe próby. Sensory:
-   - `PGE Balance` (`sensor.pge_balance`) – Kwota pozostała do zapłaty w PLN. Posiada dodatkowe atrybuty: Punkt Poboru Medium (PPE), Data opłacenia (Paid Date), Status płatności (Payment Status), Numer faktury (Invoice Number) oraz Data wystawienia (Issue Date).
-   - `PGE Payment Due Date` (`sensor.pge_payment_due_date`) – Termin płatności rachunku.
-   - `PGE Invoice Amount` (`sensor.pge_invoice_amount`) – Oryginalna, całkowita kwota na jaką opiewała najnowsza faktura (przed jakimikolwiek wpłatami).
-   - `PGE Consumed Energy` (`sensor.pge_consumed_energy`) – Energia pobrana (w kWh). Sumaryczna ilość prądu, która popłynęła z sieci do Twojego domu.
-   - `PGE Feed-in Energy` (`sensor.pge_feed_in_energy`) – Energia wprowadzona (w kWh). Nadwyżka energii wyprodukowana przez Twoją instalację i wprowadzona do sieci.
-   - `PGE Settled Energy` (`sensor.pge_settled_energy`) – Wartość zużycia po rozliczeniu (w kWh). Faktyczna ilość energii, za którą finalnie PGE wystawiło Ci rachunek po "zbilansowaniu" energii pobranej i wprowadzonej do sieci.
+   - `PGE Saldo` (`sensor.pge_balance`) – Kwota pozostała do zapłaty w PLN. Posiada dodatkowe atrybuty: Punkt Poboru Medium (PPE), Data opłacenia (Paid Date), Status płatności (Payment Status), Numer faktury (Invoice Number) oraz Data wystawienia (Issue Date).
+   - `PGE Termin płatności` (`sensor.pge_payment_due_date`) – Termin płatności rachunku.
+   - `PGE Kwota faktury` (`sensor.pge_invoice_amount`) – Oryginalna, całkowita kwota na jaką opiewała najnowsza faktura (przed jakimikolwiek wpłatami).
+   - `PGE Energia pobrana` (`sensor.pge_consumed_energy`) – Energia pobrana (w kWh). Sumaryczna ilość prądu, która popłynęła z sieci do Twojego domu.
+   - `PGE Energia wprowadzona` (`sensor.pge_feed_in_energy`) – Energia wprowadzona (w kWh). Nadwyżka energii wyprodukowana przez Twoją instalację i wprowadzona do sieci.
+   - `PGE Zużycie po rozliczeniu` (`sensor.pge_settled_energy`) – Wartość zużycia po rozliczeniu (w kWh). Faktyczna ilość energii, za którą finalnie PGE wystawiło Ci rachunek po "zbilansowaniu" energii pobranej i wprowadzonej do sieci.
    - `PGE Magazyn energii` (`sensor.pge_magazyn_energii`) – Ilość pozostałej do rozliczenia energii. Atrybuty sensora zawierają ponadto pełną historię rozliczonych miesięcy oraz odpowiednie współczynniki.
    - `PGE Okres rozliczeniowy` (`sensor.pge_okres_rozliczeniowy`) – Przedział dat (np. 01.01.2026 - 30.06.2026), za który została wystawiona najnowsza faktura.
    - `PGE Bieżąca płatność` (`sensor.pge_biezaca_platnosc`) – Kwota (w PLN) pozostała do zapłaty wyłącznie za najnowszą, konkretną fakturę (w przeciwieństwie do salda, które obejmuje całe konto).
