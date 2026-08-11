@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.4.5] - 2026-08-11
+
+### Added
+- PL: Dodano automatyczne sortowanie rozbicia miesięcznego w atrybutach sensora `PGE Magazyn energii` od najnowszej do najstarszej daty.
+- EN: Added automatic sorting of monthly breakdowns in the `PGE Magazyn energii` sensor attributes from newest to oldest date.
+
 ## [1.4.4] - 2026-08-11
 
 ### Fixed

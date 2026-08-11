@@ -72,7 +72,9 @@ def main() -> int:
         history = strefa_1.get("dataWarehousePpm", [])
         if history:
             print("\nRozbicie na miesiące:")
-            for item in history:
+            # Sort from newest to oldest
+            history_sorted = sorted(history, key=lambda x: x.get("insertToGridDate", ""), reverse=True)
+            for item in history_sorted:
                 date_str = item.get("insertToGridDate", "").split("T")[0]
                 print(f" - {date_str}: rozliczono {item.get('settledEnergyAmount')} kWh | pozostaje {item.get('leftEnergyAmount')} kWh")
         print("-----------------------")

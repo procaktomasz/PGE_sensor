@@ -262,7 +262,11 @@ class PgeEnergyStorageSensor(PgeBaseSensor):
                 
             history = strefa_1.get("dataWarehousePpm")
             if history:
-                attrs["history"] = history
+                attrs["history"] = sorted(
+                    history,
+                    key=lambda x: x.get("insertToGridDate", ""),
+                    reverse=True
+                )
 
         return attrs
 
