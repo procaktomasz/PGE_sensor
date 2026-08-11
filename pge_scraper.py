@@ -50,31 +50,25 @@ def main() -> int:
         return 1
     if balance.due_date:
         due_text = balance.due_date.strftime("%d.%m.%Y")
-        print(f"Outstanding amount: {balance.amount:.2f} PLN (due {due_text})")
+        print(f"PGE Saldo: {balance.amount:.2f} PLN")
+        print(f"PGE Termin płatności: {due_text}")
     else:
-        print(f"Outstanding amount: {balance.amount:.2f} PLN (due date unavailable)")
+        print(f"PGE Saldo: {balance.amount:.2f} PLN")
+        print(f"PGE Termin płatności: Brak danych")
         
-    print("\n--- LATEST INVOICE DETAILS ---")
-    print(f"Invoice Number: {balance.invoice_number}")
-    print(f"Issue Date: {balance.issue_date}")
-    print(f"Invoice Amount: {balance.invoice_amount}")
-    print(f"Payment Status: {balance.payment_status}")
-    print(f"Paid Date: {balance.paid_date}")
-    print(f"PPE: {balance.ppe}")
-    print(f"Consumed Energy: {balance.consumed_energy} kWh")
-    print(f"Feed-in Energy: {balance.feed_in_energy} kWh")
-    print(f"Settled Energy: {balance.settled_energy} kWh")
-    print(f"Billing Period: {balance.billing_period}")
-    print(f"Current Payment: {balance.current_payment} PLN")
+    print(f"PGE Kwota faktury: {balance.invoice_amount} PLN")
+    print(f"PGE Energia pobrana: {balance.consumed_energy} kWh")
+    print(f"PGE Energia wprowadzona: {balance.feed_in_energy} kWh")
+    print(f"PGE Zużycie po rozliczeniu: {balance.settled_energy} kWh")
+    print(f"PGE Okres rozliczeniowy: {balance.billing_period}")
+    print(f"PGE Bieżąca płatność: {balance.current_payment} PLN")
     
     storage = balance.energy_storage
     if storage:
-        print("\n--- MAGAZYN ENERGII ---")
         zones = storage.get("zones", {})
         strefa_1 = zones.get("Strefa 1") or zones.get("Strefa 1 w sumie") or next(iter(zones.values()), {})
         summary = strefa_1.get("dataWarehouseSummary", {})
-        print(f"Ilość pozostałej do rozliczenia energii: {summary.get('leftEnergyAmountSum', 0)} kWh")
-        print(f"Rozliczona energia wprowadzona (z uwzględnieniem współczynnika {summary.get('factor')}): {summary.get('settledEnergyAmountSumWithFactor')} kWh")
+        print(f"PGE Magazyn energii: {summary.get('leftEnergyAmountSum', 0)} kWh")
         history = strefa_1.get("dataWarehousePpm", [])
         if history:
             print("\nRozbicie na miesiące:")
