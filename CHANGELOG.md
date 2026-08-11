@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.4.4] - 2026-08-11
+
+### Fixed
+- PL: Usunięto błąd "Login failed: incorrect credentials" wywoływany przez wysyłanie wygasłego tokenu do punktu logowania po upływie 8-godzinnej sesji w tle.
+- EN: Fixed "Login failed: incorrect credentials" caused by sending a stale token to the login endpoint after the 8-hour background session expired.
+
 ## [1.4.3] - 2026-08-10
 
 ### Fixed

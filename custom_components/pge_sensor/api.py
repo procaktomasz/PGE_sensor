@@ -185,6 +185,8 @@ class PgeScraper:
             "deviceName": "Home Assistant",
             "platform": "Android"
         }
+        # Remove old expired token if it exists in the session headers
+        self._session.headers.pop("Authorization", None)
         try:
             response = self._session.post(
                 self.AUTH_URL,
