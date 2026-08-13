@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-08-13
+
+### Added
+- PL: Pełne wsparcie dla kont posiadających wiele Punktów Poboru Energii (PPE) / wiele liczników! Od teraz podczas konfiguracji możesz wybrać konkretny licznik do zaimportowania lub dodać wszystkie naraz. Każdy licznik trafia do Home Assistanta jako osobne, odpowiednio nazwane urządzenie ze swoimi własnymi sensorami (dzięki uprzejmości @JarDol). Kolejne punkty można dodać później, uruchamiając dodawanie integracji ponownie z tymi samymi danymi logowania.
+- EN: Full support for accounts with multiple points of consumption (PPE) / multiple meters! During configuration, you can now pick a specific meter to import or add all of them at once. Each meter is imported into Home Assistant as a distinct, properly named device with its own set of sensors (courtesy of @JarDol). Additional points can be added later by running "Add integration" again with the same credentials.
+
 ## [1.4.4] - 2026-08-11
 
 ### Added

@@ -21,8 +21,8 @@ Ten projekt łączy prosty skrypt CLI oraz integrację Home Assistant do pobiera
 ### Integracja z Home Assistant
 1. Skompletuj katalog `custom_components/pge_sensor` w folderze `config/custom_components` swojej instalacji HA.
 2. Przeładuj HA lub wykonaj `Odśwież integracje`.
-3. Dodaj integrację „PGE Sensor” z poziomu interfejsu (Konfiguracja → Urządzenia i Usługi → Dodaj integrację) i podaj dane logowania.
-4. Koordynator aktualizuje dane co 8 godzin (`SCAN_INTERVAL`), a po błędach przechodzi na 30-minutowe próby. Sensory:
+3. Dodaj integrację „PGE Sensor” z poziomu interfejsu (Konfiguracja → Urządzenia i Usługi → Dodaj integrację) i podaj dane logowania. Jeśli konto obsługuje więcej niż jeden punkt poboru (PPE), zostaniesz zapytany, czy dodać wszystkie punkty naraz, czy tylko wybrany — każdy punkt tworzy osobne urządzenie z pełnym kompletem sensorów. Aby dodać kolejny, pojedynczy punkt później, uruchom dodawanie integracji ponownie z tymi samymi danymi logowania.
+4. Koordynator aktualizuje dane co 8 godzin (`SCAN_INTERVAL`), a po błędach przechodzi na 30-minutowe próby. Sensory (dla każdego skonfigurowanego punktu poboru):
    - `PGE Saldo` (`sensor.pge_balance`) – Kwota pozostała do zapłaty w PLN. Posiada dodatkowe atrybuty: Punkt Poboru Medium (PPE), Data opłacenia (Paid Date), Status płatności (Payment Status), Numer faktury (Invoice Number) oraz Data wystawienia (Issue Date).
    - `PGE Termin płatności` (`sensor.pge_payment_due_date`) – Termin płatności rachunku.
    - `PGE Kwota faktury` (`sensor.pge_invoice_amount`) – Oryginalna, całkowita kwota na jaką opiewała najnowsza faktura (przed jakimikolwiek wpłatami).
@@ -74,8 +74,8 @@ This repository ships both a lightweight CLI scraper (`pge_scraper.py`) and a Ho
 ### Home Assistant integration
 1. Copy the `custom_components/pge_sensor` directory into `config/custom_components` inside your HA setup.
 2. Reload Home Assistant (or use the “Reload integrations” UI action).
-3. Add the “PGE Sensor” integration via the UI and supply your login/password.
-4. The `DataUpdateCoordinator` refreshes the portal every 8 hours and switches to 30-minute retries after failures. Available entities:
+3. Add the “PGE Sensor” integration via the UI and supply your login/password. If the account has more than one point of consumption (PPE), you'll be asked whether to add all of them at once or just a specific one — each point becomes its own device with a full set of sensors. To add another single point later, run "Add integration" again with the same credentials.
+4. The `DataUpdateCoordinator` refreshes the portal every 8 hours and switches to 30-minute retries after failures. Available entities (per configured point of consumption):
    - `PGE Balance` (`sensor.pge_balance`) – Outstanding amount to pay in PLN. Contains extra attributes: PPE, Paid Date, Payment Status, Invoice Number, and Issue Date.
    - `PGE Payment Due Date` (`sensor.pge_payment_due_date`) – Next payment due date if present.
    - `PGE Invoice Amount` (`sensor.pge_invoice_amount`) – The original total amount of the latest invoice.

@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
 
-from .const import CONF_PASSWORD, CONF_USERNAME, DOMAIN
+from .const import CONF_ACCOUNT_ID, CONF_PASSWORD, CONF_USERNAME, DOMAIN
 from .coordinator import PgeEbokCoordinator
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
@@ -23,6 +23,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass,
         entry.data[CONF_USERNAME],
         entry.data[CONF_PASSWORD],
+        entry.data.get(CONF_ACCOUNT_ID),
     )
 
     await coordinator.async_config_entry_first_refresh()

@@ -16,6 +16,29 @@ class PgeScraperError(RuntimeError):
     """Domain-specific exception raised by PgeScraper."""
 
 
+def describe_billing_account(account: dict) -> str:
+    """Build a human-readable label for a billing account (point of consumption).
+
+    The mBOK API does not publicly document field names for this endpoint, so
+    probe the common variants observed in practice before falling back to the id.
+    """
+    for key in (
+        "ppeNumber",
+        "premiseAddress",
+        "address",
+        "shortName",
+        "name",
+        "consumerNumber",
+        "accountNumber",
+        "number",
+    ):
+        value = account.get(key)
+        if value:
+            return str(value)
+    account_id = account.get("id")
+    return f"Punkt poboru {account_id}" if account_id is not None else "Punkt poboru"
+
+
 @dataclass
 class BalanceInfo:
     """Represents a single outstanding payment entry and latest invoice details."""
@@ -59,15 +82,31 @@ class PgeScraper:
         self._access_token: Optional[str] = None
         self._device_id = str(uuid.uuid4())
 
-    def get_balance_details(self) -> BalanceInfo:
-        """Return the outstanding payment along with its due date."""
+    def get_billing_accounts(self) -> list[dict]:
+        """Return every billing account (point of consumption) available for this user."""
+        self._login()
+        self._session.headers.update({"Authorization": f"Bearer {self._access_token}"})
+        try:
+            response = self._session.post(self.BILLING_ACCOUNTS_URL, json={}, timeout=self._timeout)
+            response.raise_for_status()
+            return response.json().get("billingAccounts", [])
+        except requests.RequestException as exc:
+            raise PgeScraperError("Failed to fetch billing accounts") from exc
+
+    def get_balance_details(self, account_id: Optional[int] = None) -> BalanceInfo:
+        """Return the outstanding payment along with its due date.
+
+        If ``account_id`` is not provided, the default (or first available)
+        billing account is used, preserving the historical single-account behavior.
+        """
         # Always perform a fresh login to ensure the access token is valid (it expires over time)
         self._login()
 
         # Update headers with auth token
         self._session.headers.update({"Authorization": f"Bearer {self._access_token}"})
 
-        account_id = self._get_billing_account_id()
+        if account_id is None:
+            account_id = self._get_billing_account_id()
         if not account_id:
             _LOGGER.warning("No billing accounts found for user %s", self._username)
             return BalanceInfo(amount=0.0)

@@ -18,7 +18,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
-from .const import DOMAIN
+from .const import CONF_ACCOUNT_ID, DOMAIN
 from .coordinator import PgeEbokCoordinator
 
 MONETARY_UNIT = "PLN"
@@ -37,34 +37,45 @@ async def async_setup_entry(
 ) -> None:
     coordinator: PgeEbokCoordinator = hass.data[DOMAIN][entry.entry_id]
     username = entry.data[CONF_USERNAME]
-    slug = slugify(username)
+    account_id = entry.data.get(CONF_ACCOUNT_ID)
+    # Include the account/point id in the slug so multiple points for the same
+    # user get distinct entities and devices instead of colliding.
+    slug = slugify(f"{username}_{account_id}") if account_id is not None else slugify(username)
+    device_name = entry.title or f"PGE Sensor ({username})"
 
     entities: list[SensorEntity] = [
-        PgeBalanceSensor(coordinator, slug, username),
-        PgeInvoiceAmountSensor(coordinator, slug, username),
-        PgeConsumedEnergySensor(coordinator, slug, username),
-        PgeFeedInEnergySensor(coordinator, slug, username),
-        PgeSettledEnergySensor(coordinator, slug, username),
-        PgeEnergyStorageSensor(coordinator, slug, username),
-        PgeBillingPeriodSensor(coordinator, slug, username),
-        PgeCurrentPaymentSensor(coordinator, slug, username),
-        PgeDueDateSensor(coordinator, slug, username),
+        PgeBalanceSensor(coordinator, slug, username, device_name),
+        PgeInvoiceAmountSensor(coordinator, slug, username, device_name),
+        PgeConsumedEnergySensor(coordinator, slug, username, device_name),
+        PgeFeedInEnergySensor(coordinator, slug, username, device_name),
+        PgeSettledEnergySensor(coordinator, slug, username, device_name),
+        PgeEnergyStorageSensor(coordinator, slug, username, device_name),
+        PgeBillingPeriodSensor(coordinator, slug, username, device_name),
+        PgeCurrentPaymentSensor(coordinator, slug, username, device_name),
+        PgeDueDateSensor(coordinator, slug, username, device_name),
     ]
 
     async_add_entities(entities)
 
 
 class PgeBaseSensor(CoordinatorEntity[PgeEbokCoordinator], SensorEntity):
-    def __init__(self, coordinator: PgeEbokCoordinator, slug: str, username: str) -> None:
+    def __init__(
+        self,
+        coordinator: PgeEbokCoordinator,
+        slug: str,
+        username: str,
+        device_name: str = "PGE Sensor",
+    ) -> None:
         super().__init__(coordinator)
         self._slug = slug
         self._username = username
+        self._device_name = device_name
 
     @property
     def device_info(self) -> DeviceInfo:
         return DeviceInfo(
             identifiers={(DOMAIN, self._slug)},
-            name="PGE Sensor",
+            name=self._device_name,
             manufacturer="PGE",
         )
 

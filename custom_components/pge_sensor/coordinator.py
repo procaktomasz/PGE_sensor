@@ -18,19 +18,27 @@ _LOGGER = logging.getLogger(__name__)
 class PgeEbokCoordinator(DataUpdateCoordinator[BalanceInfo]):
     """Coordinator responsible for fetching balance information."""
 
-    def __init__(self, hass: HomeAssistant, username: str, password: str) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        username: str,
+        password: str,
+        account_id: int | None = None,
+    ) -> None:
         self._api = PgeScraper(username, password, timeout=DEFAULT_TIMEOUT)
         self._username = username
+        self._account_id = account_id
+        name = f"PGE Sensor ({username})" if account_id is None else f"PGE Sensor ({username} / {account_id})"
         super().__init__(
             hass,
             _LOGGER,
-            name=f"PGE Sensor ({username})",
+            name=name,
             update_interval=SCAN_INTERVAL,
         )
 
     async def _async_update_data(self) -> BalanceInfo:
         try:
-            data = await self.hass.async_add_executor_job(self._api.get_balance_details)
+            data = await self.hass.async_add_executor_job(self._api.get_balance_details, self._account_id)
             self._ensure_interval(SCAN_INTERVAL)
             return data
         except PgeScraperError as err:
