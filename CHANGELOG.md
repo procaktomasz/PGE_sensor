@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-08-13
+
+### Fixed
+- PL: Poprawiono obsługę błędów podczas logowania w kreatorze dodawania integracji. Błędy związane z połączeniem, przekroczeniem limitu zapytań (np. API zwracające 403 lub timeout) nie będą już błędnie zgłaszane jako "invalid_auth" (nieprawidłowe dane logowania), lecz poprawnie jako "cannot_connect". Ułatwi to diagnozę problemów np. przy dodawaniu kolejnych kont.
+- EN: Fixed error handling during login in the config flow. Connection errors and rate limits (e.g. API returning 403 or timeout) will no longer incorrectly report as "invalid_auth" (invalid credentials), but properly as "cannot_connect". This improves diagnostics e.g. when adding multiple accounts.
+
 ## [1.5.0] - 2026-08-13
 
 ### Added

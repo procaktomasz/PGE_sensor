@@ -41,8 +41,11 @@ class PgeEbokConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             username = user_input[CONF_USERNAME]
             try:
                 accounts = await _async_fetch_accounts(self.hass, user_input)
-            except PgeScraperError:
-                errors["base"] = "invalid_auth"
+            except PgeScraperError as exc:
+                if "incorrect credentials" in str(exc):
+                    errors["base"] = "invalid_auth"
+                else:
+                    errors["base"] = "cannot_connect"
             except Exception:
                 errors["base"] = "unknown"
             else:
