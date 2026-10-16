@@ -16,7 +16,7 @@ Integracja Home Assistant oraz skrypt CLI do pobierania informacji o rozliczenia
 
 ## Sensory
 
-Integracja tworzy następujące sensory dla każdego skonfigurowanego Punktu Poboru (PPE):
+Integracja tworzy następujące sensory dla każdego skonfigurowanego Punktu Poboru (PPE). Nazwy encji mają postać `sensor.pge_<numer PPE>_<sensor>`, np. `sensor.pge_590243000000000001_saldo` — patrz [Identyfikatory encji](#identyfikatory-encji). Poniższa tabela pokazuje nazwy z wersji sprzed tej zmiany:
 
 | Sensor | Opis | Wartość |
 |--------|------|---------|
@@ -29,6 +29,9 @@ Integracja tworzy następujące sensory dla każdego skonfigurowanego Punktu Pob
 | `sensor.pge_settled_energy` | **PGE Zużycie po rozliczeniu** - faktyczna ilość energii po zbilansowaniu. | kWh |
 | `sensor.pge_magazyn_energii` | **PGE Magazyn energii** - pozostała do rozliczenia energia (historia w atrybutach). | kWh |
 | `sensor.pge_okres_rozliczeniowy` | **PGE Okres rozliczeniowy** - przedział dat dla najnowszej faktury. | tekst |
+| `sensor.pge_<PPE>_magazyn_biezacy` | **PGE Magazyn energii — bieżący z licznika** - stan banku energii na dziś, wyliczony z Twoich liczników (tylko gdy podasz liczniki, patrz niżej). | kWh |
+| `sensor.pge_<PPE>_zuzycie_do_zaplaty_biezace` | **PGE Zużycie do zapłaty — bieżący okres** - pobór niepokryty magazynem od początku bieżącego okresu; zeruje się po pojawieniu się nowej faktury (tylko z licznikami). | kWh |
+| `sensor.pge_<PPE>_zuzycie_do_zaplaty_poprzedni_okres` | **PGE Zużycie do zapłaty — poprzedni okres** - to samo wyliczenie dla okresu z ostatniej faktury, do porównania z fakturą (tylko z licznikami). | kWh |
 
 Koordynator aktualizuje dane co 8 godzin, a w przypadku błędu (np. przerwa techniczna eBOK) ponawia próby co 30 minut.
 
@@ -61,6 +64,48 @@ Lub ręcznie:
 2. Wyszukaj **PGE Sensor**.
 3. Podaj swoje dane logowania do serwisu eBOK.
 4. Jeśli konto posiada wiele punktów poboru, instalator zapyta, czy chcesz dodać wszystkie naraz, czy tylko wybrany. Aby w przyszłości dodać kolejny, uruchom konfigurację ponownie z tymi samymi danymi.
+5. Opcjonalnie wskaż liczniki energii pobranej i oddanej (patrz niżej). Można je dodać lub zmienić później przyciskiem **Konfiguruj** przy integracji.
+
+### Bieżący magazyn energii z licznika
+
+PGE pokazuje bank energii tylko na dzień ostatniego rzeczywistego rozliczenia. Jeśli wskażesz liczniki energii pobranej i oddanej (np. z licznika dwukierunkowego, falownika lub Shelly), integracja doliczy do tego banku Twoje odczyty od dnia po zakończeniu rozliczonego okresu:
+
+- energia oddana w danym miesiącu trafia do banku po przemnożeniu przez współczynnik opustu PGE (np. 0,8),
+- pobór zużywa najpierw najstarsze partie energii,
+- partie wygasają po 12 miesiącach,
+- magazyn nie schodzi poniżej zera — gdy zabraknie w nim energii, dalszy pobór trafia do sensora **Zużycie do zapłaty — bieżący okres** i jest spłacany z kolejnych oddań.
+
+Magazyn i oba liczniki zużycia do zapłaty pochodzą z tego samego wyliczenia: dopóki magazyn ma kWh, zużycie do zapłaty wynosi 0. Okres to `sensor.pge_<PPE>_okres_rozliczeniowy` z ostatniej faktury rzeczywistej — liczenie bieżące startuje dzień po jego końcu i zeruje się dopiero, gdy w eBOK pojawi się kolejna faktura z nowym okresem (nie w dniu końca okresu).
+
+**Zużycie do zapłaty — poprzedni okres** liczy ten sam algorytm dla okresu z ostatniej faktury: startuje z magazynu z faktury wcześniejszej i używa Twoich liczników z tego okresu. Atrybuty pozwalają porównać wynik z fakturą: `pobrana_od_startu` / `pobrana_faktura`, `oddana_od_startu` / `oddana_faktura` oraz `magazyn_wyliczony_na_koniec` / `magazyn_z_faktury`. Wymaga statystyk liczników za cały ten okres i faktury z poprzedniego okresu w eBOK.
+
+Wymagania:
+
+- oba liczniki muszą być narastającymi sensorami energii (`device_class: energy`, `state_class: total_increasing` lub `total`) z historią w statystykach długoterminowych — takie, jakie można wybrać w panelu Energia,
+- statystyki muszą sięgać początku bieżącego okresu (dnia po końcu ostatniego rozliczenia); bez tego sensor jest niedostępny, a w logu pojawia się ostrzeżenie,
+- obsługiwane są taryfy jednostrefowe (np. G11); przy koncie z bankiem w dwóch strefach sensor pozostaje niedostępny.
+
+W ustawieniach (kreator lub **Konfiguruj**) można też ustawić:
+
+- **Dokładność** (0,01 / 0,1 / 0,5 / 1 kWh, domyślnie 0,1) — krok zaokrąglenia stanu i atrybutów energii. Sensor zmienia wartość dopiero o pełny krok, więc większy krok oznacza rzadsze aktualizacje i mniej wpisów w bazie.
+- **Współczynnik opustu** — domyślnie puste: używany jest współczynnik podany przez PGE w ostatnim rozliczeniu, a gdy PGE go nie podało — 0,8. Wpisana wartość (np. 0,7 dla instalacji 10–50 kW) zastępuje oba. Atrybut `factor_zrodlo` pokazuje, skąd pochodzi użyty współczynnik (`PGE`, `ręczny`, `domyślny`), a `factor_pge` — wartość od PGE.
+
+Odczyty z początku każdego miesiąca pobierane są ze statystyk co godzinę, a wartość przeliczana jest przy każdej zmianie stanu licznika. W atrybutach sensora znajdziesz m.in. pobór i oddanie od początku okresu, deficyt, energię, która wygasła, oraz listę partii z datą wygaśnięcia (`partie`, `najblizsze_wygasniecie`).
+
+### Identyfikatory encji
+
+Encje są nazywane według numeru punktu poboru (PPE), a nie numeru konta: `sensor.pge_<PPE>_saldo`, `sensor.pge_<PPE>_magazyn_energii` itd. Numer PPE oznacza fizyczny punkt i nie zmienia się, gdy PGE zmienia numer konta rozliczeniowego. Jeśli konto obejmuje kilka punktów poboru, w nazwie zostaje numer konta.
+
+Przy pierwszym uruchomieniu wersji z tą zmianą istniejące encje są jednorazowo przemianowane na nowy wzorzec. Home Assistant przenosi przy tym historię i statystyki, ale karty i automatyzacje używające starych nazw trzeba poprawić. Późniejsze ręczne zmiany nazw nie są nadpisywane.
+
+### Zmiana konta rozliczeniowego przez PGE
+
+Gdy PGE zarchiwizuje skonfigurowane konto, a ten sam punkt poboru pojawi się na nowym, aktywnym koncie, w **Ustawienia → Naprawy** pojawi się zgłoszenie „PGE zastąpiło konto rozliczeniowe”. Po jego zatwierdzeniu integracja zaczyna pobierać dane z nowego konta, a encje, ich nazwy i cała historia pozostają bez zmian.
+
+- Zanim zatwierdzisz, opłać fakturę końcową starego konta — po przeniesieniu jego saldo nie jest już śledzone.
+- Nowe konto może jeszcze nie mieć faktury rozliczeniowej; do tego czasu sensory rozliczenia i banku mogą być niedostępne.
+- Jeśli nowe konto zostało już dodane jako osobna integracja, usuń ją przed zatwierdzeniem naprawy.
+- Zgłoszenie nie pojawi się, jeśli ten sam punkt jest na kilku aktywnych kontach (nie da się wtedy jednoznacznie wskazać następcy).
 
 ## Rozwiązywanie problemów
 

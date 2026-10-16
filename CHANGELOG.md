@@ -4,6 +4,76 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-10-16
+
+### Added
+- PL: Sensor `PGE Zużycie do zapłaty — bieżący okres` — pobór niepokryty magazynem od początku bieżącego okresu rozliczeniowego, z tego samego wyliczenia co bieżący magazyn. Zeruje się po pojawieniu się nowej faktury. Atrybut `deficyt_od` wskazuje miesiąc wyczerpania magazynu.
+- EN: `PGE Zużycie do zapłaty — bieżący okres` sensor — consumption not covered by the bank since the current billing period began, from the same projection as the current bank. Resets when a new invoice appears. The `deficyt_od` attribute shows the month the bank ran out.
+- PL: Sensor `PGE Zużycie do zapłaty — poprzedni okres` — to samo wyliczenie dla okresu z ostatniej faktury, startujące z magazynu z faktury wcześniejszej, z atrybutami do porównania z fakturą (pobór, oddanie, magazyn na koniec okresu).
+- EN: `PGE Zużycie do zapłaty — poprzedni okres` sensor — the same projection over the latest invoiced period, starting from the earlier invoice's bank, with attributes to compare against the invoice (import, export, bank at period end).
+
+### Changed
+- PL: `PGE Magazyn energii — bieżący z licznika` nie schodzi już poniżej zera; niedobór pokazuje sensor zużycia do zapłaty.
+- EN: `PGE Magazyn energii — bieżący z licznika` no longer goes negative; the shortfall is shown by the energy-to-pay sensor.
+
+## [1.9.0] - 2026-10-15
+
+### Added
+- PL: Ustawienie dokładności bieżącego magazynu energii (0,01 / 0,1 / 0,5 / 1 kWh) — krok zaokrąglenia stanu i atrybutów energii, ograniczający liczbę aktualizacji.
+- EN: Precision setting for the current energy bank (0.01 / 0.1 / 0.5 / 1 kWh) — rounding step for the state and energy attributes, reducing the number of updates.
+- PL: Ręczne nadpisanie współczynnika opustu. Domyślnie używany jest współczynnik z rozliczenia PGE, a gdy go brak — 0,8. Nowe atrybuty `factor_zrodlo`, `factor_pge` i `dokladnosc`.
+- EN: Manual override of the opust factor. By default PGE's settlement factor is used, or 0.8 when PGE has none. New attributes `factor_zrodlo`, `factor_pge` and `dokladnosc`.
+
+### Changed
+- PL: Atrybuty energii magazynu bieżącego są zaokrąglane z wybraną dokładnością (domyślnie 0,1 kWh zamiast 0,01 kWh).
+- EN: Energy attributes of the current bank are rounded to the chosen precision (0.1 kWh by default instead of 0.01 kWh).
+
+## [1.8.0] - 2026-10-15
+
+### Added
+- PL: Wykrywanie zmiany konta rozliczeniowego przez PGE. Gdy skonfigurowane konto zostanie zarchiwizowane, a jego punkt poboru (PPE) przejdzie na nowe konto, w **Ustawienia → Naprawy** pojawia się zgłoszenie. Po jego zatwierdzeniu integracja pobiera dane z nowego konta, zachowując encje, ich nazwy i historię.
+- EN: Detects PGE replacing a billing account. When the configured account is archived and its supply point (PPE) moves to a new account, a repair appears in **Settings → Repairs**. Confirming it switches the integration to the new account while keeping entities, their IDs and history.
+
+### Changed
+- PL: **Zmiana nazw encji:** encje mają teraz postać `sensor.pge_<numer PPE>_<sensor>` niezależnie od liczby kont (przy koncie z kilkoma punktami poboru — numer konta). Istniejące encje są jednorazowo przemianowane; Home Assistant przenosi ich historię i statystyki, ale karty i automatyzacje trzeba zaktualizować.
+- EN: **Entity IDs renamed:** entities are now `sensor.pge_<PPE number>_<sensor>` regardless of how many accounts are configured (account number for accounts covering several points). Existing entities are renamed once; Home Assistant moves their history and statistics, but dashboards and automations must be updated.
+
+## [1.7.0] - 2026-10-15
+
+### Added
+- PL: Opcjonalne liczniki energii pobranej i oddanej w konfiguracji integracji (także później, w opcjach). Po ich wskazaniu pojawia się sensor `PGE Magazyn energii — bieżący z licznika` — bank z ostatniego rozliczenia PGE uzupełniany odczytami ze statystyk długoterminowych: opust, zużycie partii od najstarszej, wygasanie po 12 miesiącach i deficyt jako wartość ujemna. Obsługiwane są taryfy jednostrefowe.
+- EN: Optional grid import and export meters in the integration setup (and later in its options). When set, a `PGE Magazyn energii — bieżący z licznika` sensor projects PGE's last settled bank with readings from long-term statistics: opust factor, oldest-batch-first consumption, 12-month expiry and deficit as a negative value. Single-zone tariffs are supported.
+- PL: Polskie i angielskie tłumaczenia kreatora konfiguracji.
+- EN: Polish and English translations for the config flow.
+
+## [1.6.0] - 2026-10-14
+
+### Added
+- PL: Czytelny wybór konta w kreatorze konfiguracji — zamiast samego numeru konta widoczny jest adres punktu poboru, numer PPE oraz oznaczenia (domyślne, prosument, ARCHIWALNE). Konta aktywne są wyświetlane przed archiwalnymi (dzięki uprzejmości @ciechompl).
+- EN: Readable account selection in the config flow — instead of a bare account number it now shows the supply point address, PPE number and flags (default, prosumer, ARCHIVED). Active accounts are listed before archived ones (courtesy of @ciechompl).
+- PL: Krótkie identyfikatory nowych encji, np. `sensor.pge_saldo` przy jednym koncie lub `sensor.pge_<nr_konta>_saldo` przy kilku. Istniejące identyfikatory encji pozostają bez zmian.
+- EN: Short IDs for new entities, e.g. `sensor.pge_saldo` for a single account or `sensor.pge_<account_no>_saldo` for multiple accounts. Existing entity IDs are kept unchanged.
+- PL: Nowe sensory: kwota rzeczywistej faktury rozliczeniowej, wartość rozliczenia energii (PLN), prognozowany pobór (kWh), data salda banku oraz bank energii osobno dla stref S1 i S2 (po zastosowaniu współczynnika opustu). Szczegóły w `docs/settlement-sensors.md` (dzięki uprzejmości @ciechompl).
+- EN: New sensors: actual settlement invoice amount, energy settlement value (PLN), forecast consumption (kWh), bank balance date and energy bank per zone S1/S2 (after applying the net-metering factor). See `docs/settlement-sensors.md` (courtesy of @ciechompl).
+
+### Changed
+- PL: Sensory energii pobranej/wprowadzonej i okresu rozliczeniowego pochodzą wyłącznie z rzeczywistych faktur (`INVOICE`) — prognozy (`PREPAYMENT_INVOICE`) nie zastępują już pomiarów.
+- EN: Consumed/fed-in energy and billing period sensors now come only from actual invoices (`INVOICE`) — forecasts (`PREPAYMENT_INVOICE`) no longer replace measured values.
+- PL: `PGE Magazyn energii` pokazuje sumę dostępnej energii ze stref S1/S2 po zastosowaniu współczynnika PGE, zamiast surowego salda pierwszej strefy.
+- EN: `PGE Magazyn energii` now shows the sum of available energy across zones S1/S2 after applying PGE's factor, instead of the raw balance of the first zone.
+- PL: Dla kont, które PGE jawnie oznacza jako nieprosumenckie, sensory energii wprowadzonej i banku są domyślnie wyłączone.
+- EN: For accounts PGE explicitly reports as non-prosumer, fed-in energy and bank sensors are disabled by default.
+- PL: Sensory energii z pojedynczej faktury, prognozy i banku nie mają już `state_class` — nie są licznikami kumulacyjnymi.
+- EN: Single-invoice energy, forecast and bank sensors no longer have a `state_class` — they are not cumulative counters.
+
+### Deprecated
+- PL: Sensor „Zużycie po rozliczeniu” jest wyłączany przez integrację (wartość była błędnie wystawiana w kWh, a jest kwotą w PLN). Zastępuje go sensor „Wartość rozliczenia energii”. Historia i wpis encji nie są usuwane.
+- EN: The "Zużycie po rozliczeniu" sensor is disabled by the integration (its value was wrongly exposed as kWh while it is a PLN amount). It is replaced by the "energy settlement value" sensor. Its history and registry entry are not removed.
+
+### Fixed
+- PL: Dodano brakujący plik `hacs.json`. Bez niego HACS odrzucał instalację wybranej wersji komunikatem „The version … for this integration can not be used with HACS”.
+- EN: Added the missing `hacs.json` file. Without it HACS refused to install a selected version with "The version … for this integration can not be used with HACS".
+
 ## [1.5.1] - 2026-08-13
 
 ### Fixed
