@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-11-12
+
+### Added
+- PL: Czytelny wybór konta w kreatorze konfiguracji: adres punktu poboru, numer PPE, numer konta oraz oznaczenia (domyślne, prosument, ARCHIWALNE). Konta aktywne są wyświetlane przed archiwalnymi (#7, dzięki uprzejmości @ciechompl).
+- EN: Readable account selection in the config flow: supply point address, PPE number, account number and flags (default, prosument, ARCHIVED). Active accounts are listed before archived ones (#7, courtesy of @ciechompl).
+- PL: Nowe sensory: kwota rzeczywistej faktury rozliczeniowej, wartość rozliczenia energii (PLN), prognozowany pobór z dokumentu płatności, data potwierdzonego salda banku oraz bank S1 i S2 po opuście (#8, dzięki uprzejmości @ciechompl). Opis w `docs/settlement-sensors.md`.
+- EN: New sensors: actual settlement invoice amount, energy settlement value (PLN), forecast consumption from the payment document, confirmed bank balance date, and bank S1 and S2 after the discount factor (#8, courtesy of @ciechompl). Details in `docs/settlement-sensors.md`.
+- PL: Testy jednostkowe w folderze `tests/`.
+- EN: Unit tests in the `tests/` folder.
+
+### Changed
+- PL: Nowo tworzone encje dostają krótkie identyfikatory, np. `sensor.pge_saldo` przy jednym koncie lub `sensor.pge_<numer_konta>_saldo` przy kilku kontach. Identyfikatory istniejących encji nie są zmieniane.
+- EN: Newly created entities get short IDs, e.g. `sensor.pge_saldo` for a single account or `sensor.pge_<account_number>_saldo` for multiple accounts. Existing entity IDs are not changed.
+- PL: Energia pobrana, wprowadzona i okres rozliczeniowy pochodzą z ostatniej rzeczywistej faktury (`INVOICE`). Prognoza (`PREPAYMENT_INVOICE`) nie zastępuje już pomiaru.
+- EN: Consumed energy, feed-in energy and billing period now come from the latest actual invoice (`INVOICE`). A forecast (`PREPAYMENT_INVOICE`) no longer replaces the measurement.
+- PL: `PGE Magazyn energii` pokazuje sumę stref S1/S2 po zastosowaniu współczynnika opustu PGE zamiast surowego salda pierwszej strefy.
+- EN: `PGE Magazyn energii` shows the sum of zones S1/S2 after PGE's discount factor instead of the raw balance of the first zone.
+- PL: Sensory energii z faktury, prognozy i banku nie mają już `state_class` (nie są licznikami kumulacyjnymi). Nie należy ich używać jako źródła w panelu Energia.
+- EN: Invoice energy, forecast and bank sensors no longer have a `state_class` (they are not cumulative meters). Do not use them as sources in the Energy dashboard.
+- PL: Zmieniono nazwy wyświetlane części sensorów, aby jasno opisywały źródło danych. Identyfikatory encji pozostają bez zmian.
+- EN: Display names of some sensors were changed to describe the data source clearly. Entity IDs remain unchanged.
+
+### Deprecated
+- PL: Sensor „Zużycie po rozliczeniu” jest wycofany i automatycznie wyłączany, ponieważ wartość PLN była wystawiana jako kWh. Historia encji jest zachowana. Poprawną kwotę pokazuje nowy sensor „Wartość rozliczenia energii (PLN)”.
+- EN: The "Zużycie po rozliczeniu" sensor is deprecated and disabled automatically because a PLN value was exposed as kWh. Entity history is kept. The correct amount is provided by the new "Wartość rozliczenia energii (PLN)" sensor.
+
 ## [1.5.2] - 2026-11-12
 
 ### Fixed

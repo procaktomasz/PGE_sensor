@@ -16,19 +16,30 @@ Integracja Home Assistant oraz skrypt CLI do pobierania informacji o rozliczenia
 
 ## Sensory
 
-Integracja tworzy następujące sensory dla każdego skonfigurowanego Punktu Poboru (PPE):
+Integracja tworzy następujące sensory dla każdego skonfigurowanego konta rozliczeniowego.
+Przy jednym koncie identyfikatory mają postać `sensor.pge_<sufiks>`, a przy kilku kontach `sensor.pge_<numer_konta>_<sufiks>`.
+Identyfikatory istniejących encji nie są zmieniane podczas aktualizacji.
 
-| Sensor | Opis | Wartość |
-|--------|------|---------|
-| `sensor.pge_balance` | **PGE Saldo** - kwota pozostała do zapłaty. W atrybutach m.in. data i status płatności, numer faktury. | PLN |
-| `sensor.pge_payment_due_date` | **PGE Termin płatności** - data, do której należy opłacić rachunek. | data |
-| `sensor.pge_invoice_amount` | **PGE Kwota faktury** - całkowita kwota z najnowszej faktury. | PLN |
-| `sensor.pge_biezaca_platnosc` | **PGE Bieżąca płatność** - kwota do zapłaty wyłącznie za najnowszą fakturę. | PLN |
-| `sensor.pge_consumed_energy` | **PGE Energia pobrana** - energia pobrana z sieci (w kWh). | kWh |
-| `sensor.pge_feed_in_energy` | **PGE Energia wprowadzona** - nadwyżka wyprodukowanej energii wprowadzona do sieci. | kWh |
-| `sensor.pge_settled_energy` | **PGE Zużycie po rozliczeniu** - faktyczna ilość energii po zbilansowaniu. | kWh |
-| `sensor.pge_magazyn_energii` | **PGE Magazyn energii** - pozostała do rozliczenia energia (historia w atrybutach). | kWh |
-| `sensor.pge_okres_rozliczeniowy` | **PGE Okres rozliczeniowy** - przedział dat dla najnowszej faktury. | tekst |
+| Sufiks ID | Nazwa | Opis | Wartość |
+|-----------|-------|------|---------|
+| `saldo` | PGE Saldo | Kwota pozostała do zapłaty. W atrybutach m.in. data i status płatności, numer faktury. | PLN |
+| `termin_platnosci` | PGE Termin płatności | Data, do której należy opłacić rachunek. | data |
+| `kwota_faktury` | PGE Kwota ostatniego dokumentu płatności | Kwota najnowszego dokumentu płatności (faktury lub prognozy). | PLN |
+| `biezaca_platnosc` | PGE Bieżąca płatność | Kwota do zapłaty wyłącznie za najnowszy dokument. | PLN |
+| `actual_invoice_amount` | PGE Kwota rzeczywistej faktury rozliczeniowej | Kwota najnowszej faktury rzeczywistej (nie prognozy). | PLN |
+| `energia_pobrana` | PGE Pobór w ostatnim rzeczywistym rozliczeniu | Energia pobrana z sieci w okresie ostatniej faktury rzeczywistej. | kWh |
+| `energia_wprowadzona` | PGE Oddanie w ostatnim rzeczywistym rozliczeniu | Energia wprowadzona do sieci (prosumenci). | kWh |
+| `forecast_energy` | PGE Prognozowany pobór — dokument płatności | Pobór przyjęty w fakturze prognozowanej. | kWh |
+| `settlement_value_pln` | PGE Wartość rozliczenia energii (PLN) | Wartość energii z rzeczywistego rozliczenia (nie końcowa kwota faktury). | PLN |
+| `magazyn_energii` | PGE Bank po opuście — ostatnie rozliczenie | Energia do odebrania z banku (suma S1/S2 po opuście), historia w atrybutach. | kWh |
+| `energy_storage_1` / `energy_storage_2` | PGE Bank S1 / S2 po opuście | Saldo banku w strefie S1 / S2 po zastosowaniu współczynnika PGE. | kWh |
+| `bank_date` | PGE Data potwierdzonego salda banku | Data, na którą obowiązuje saldo banku (koniec okresu faktury). | data |
+| `okres_rozliczeniowy` | PGE Okres rozliczeniowy | Przedział dat ostatniej faktury rzeczywistej. | tekst |
+
+Dane energii i banku pochodzą z faktur, więc opisują ostatni rozliczony okres, a nie bieżący stan licznika. Nie należy ich używać jako źródła w panelu Energia.
+Szczegóły: [docs/settlement-sensors.md](docs/settlement-sensors.md).
+
+Sensor „Zużycie po rozliczeniu” został wycofany w wersji 1.6.0 (pokazywał wartość w PLN jako kWh) i jest automatycznie wyłączany. Jego historia jest zachowana.
 
 Koordynator aktualizuje dane co 8 godzin, a w przypadku błędu (np. przerwa techniczna eBOK) ponawia próby co 30 minut.
 
@@ -60,7 +71,7 @@ Lub ręcznie:
 1. Przejdź do: **Konfiguracja** > **Urządzenia i Usługi** > **Dodaj integrację**.
 2. Wyszukaj **PGE Sensor**.
 3. Podaj swoje dane logowania do serwisu eBOK.
-4. Jeśli konto posiada wiele punktów poboru, instalator zapyta, czy chcesz dodać wszystkie naraz, czy tylko wybrany. Aby w przyszłości dodać kolejny, uruchom konfigurację ponownie z tymi samymi danymi.
+4. Jeśli konto posiada wiele kont rozliczeniowych, instalator wyświetli je z adresem punktu poboru, numerem PPE i oznaczeniami (domyślne, prosument, ARCHIWALNE) i zapyta, czy dodać wszystkie naraz, czy tylko wybrane. Aby w przyszłości dodać kolejne, uruchom konfigurację ponownie z tymi samymi danymi.
 
 ## Rozwiązywanie problemów
 
