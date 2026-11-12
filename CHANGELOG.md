@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+## [1.5.2] - 2026-11-12
+
+### Fixed
+- PL: Dodano brakujący plik `hacs.json`. Bez niego HACS odrzucał instalację integracji z repozytorium (zgłoszenie #10).
+- EN: Added the missing `hacs.json` file. Without it HACS refused to install the integration from the repository (issue #10).
+
 ## [1.5.1] - 2026-08-13
 
 ### Fixed
